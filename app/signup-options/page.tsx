@@ -9,13 +9,20 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
+// Add a key to the motion.div elements to help React with reconciliation
 export default function SignupOptionsPage() {
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
 
+  // Only run this effect on the client side
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Don't render anything until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return null // Return null or a loading state until client-side rendering is ready
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -62,6 +69,7 @@ export default function SignupOptionsPage() {
         <div className="absolute left-0 top-0 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)]"></div>
 
         <motion.div
+          key="bg1"
           className="absolute -left-20 top-20 h-96 w-96 rounded-full bg-gradient-to-r from-violet-600/10 to-fuchsia-600/10 blur-3xl dark:from-violet-600/20 dark:to-fuchsia-600/20"
           animate={{
             x: [0, 10, 0],
@@ -74,6 +82,7 @@ export default function SignupOptionsPage() {
           }}
         />
         <motion.div
+          key="bg2"
           className="absolute -right-20 bottom-20 h-96 w-96 rounded-full bg-gradient-to-r from-amber-600/10 to-rose-600/10 blur-3xl dark:from-amber-600/20 dark:to-rose-600/20"
           animate={{
             x: [0, -10, 0],
@@ -86,6 +95,7 @@ export default function SignupOptionsPage() {
           }}
         />
         <motion.div
+          key="bg3"
           className="absolute left-1/3 top-1/3 h-64 w-64 rounded-full bg-gradient-to-r from-blue-600/10 to-cyan-600/10 blur-3xl dark:from-blue-600/20 dark:to-cyan-600/20"
           animate={{
             scale: [1, 1.1, 1],
@@ -109,6 +119,7 @@ export default function SignupOptionsPage() {
           className="group absolute left-4 top-4 flex items-center gap-2 text-lg font-bold text-zinc-900 transition-all hover:text-violet-600 dark:text-white dark:hover:text-violet-400 md:left-8 md:top-8"
         >
           <motion.div
+            key="logo"
             className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-amber-600 p-[1px]"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -136,6 +147,7 @@ export default function SignupOptionsPage() {
         <motion.div className="w-full max-w-4xl" initial="hidden" animate="visible" variants={containerVariants}>
           <motion.div variants={itemVariants} className="mb-12 text-center">
             <motion.div
+              key="icon"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 15 }}
@@ -259,7 +271,7 @@ export default function SignupOptionsPage() {
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
-            key={i}
+            key={`particle-${i}`}
             className={`absolute rounded-full ${
               i % 3 === 0
                 ? "bg-violet-600/10 dark:bg-violet-600/20"
