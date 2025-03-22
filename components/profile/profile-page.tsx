@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { ProfileAbout } from "@/components/profile/profile-about"
 import { ProfileSkills } from "@/components/profile/profile-skills"
@@ -15,6 +16,35 @@ import { ProfileActivity } from "@/components/profile/profile-activity"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PremiumNavbar } from "@/components/premium-navbar"
 import { PremiumFooter } from "@/components/premium-footer"
+import { Button } from "@/components/ui/button"
+import { Icons } from "@/components/icons"
+import { toast } from "@/components/ui/use-toast"
+
+const pageVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+      staggerChildren: 0.1,
+    },
+  },
+  exit: { opacity: 0 },
+}
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+  exit: { opacity: 0, y: -20 },
+}
 
 export function ProfilePage() {
   // This would typically come from an API or context
@@ -73,6 +103,36 @@ export function ProfilePage() {
         reviews: 8,
         image: "/placeholder.svg?height=300&width=500",
       },
+      {
+        title: "Social Media Analytics Dashboard",
+        description:
+          "A comprehensive dashboard for tracking and analyzing social media performance across multiple platforms.",
+        technologies: ["Vue.js", "D3.js", "Firebase", "Python"],
+        links: {
+          github: "https://github.com/alexjohnson/social-analytics",
+          demo: "https://social-analytics.demo.com",
+        },
+        role: "Frontend Developer",
+        contributions: "Designed and implemented interactive data visualizations and real-time analytics features.",
+        ratings: 4.9,
+        reviews: 15,
+        image: "/placeholder.svg?height=300&width=500",
+      },
+      {
+        title: "Blockchain Voting System",
+        description:
+          "A secure and transparent voting system built on blockchain technology for student government elections.",
+        technologies: ["Solidity", "Ethereum", "React", "Web3.js"],
+        links: {
+          github: "https://github.com/alexjohnson/blockchain-voting",
+          demo: "https://blockchain-voting.demo.com",
+        },
+        role: "Blockchain Developer",
+        contributions: "Developed smart contracts, implemented security features, and created the web interface.",
+        ratings: 4.7,
+        reviews: 10,
+        image: "/placeholder.svg?height=300&width=500",
+      },
     ],
     experience: [
       {
@@ -96,6 +156,30 @@ export function ProfilePage() {
           "Implemented responsive designs for mobile and desktop",
         ],
         rating: 4.7,
+      },
+      {
+        company: "AI Research Lab",
+        role: "Research Assistant",
+        duration: "Sep 2021 - Dec 2021",
+        responsibilities: [
+          "Conducted research on natural language processing algorithms",
+          "Implemented and tested machine learning models using TensorFlow",
+          "Co-authored a research paper on sentiment analysis techniques",
+          "Presented findings at the university's AI symposium",
+        ],
+        rating: 4.8,
+      },
+      {
+        company: "Freelance",
+        role: "Web Developer",
+        duration: "May 2021 - Present",
+        responsibilities: [
+          "Designed and developed responsive websites for small businesses",
+          "Created custom e-commerce solutions using Shopify and WooCommerce",
+          "Provided ongoing maintenance and support for client websites",
+          "Implemented SEO best practices to improve search rankings",
+        ],
+        rating: 5.0,
       },
     ],
     connections: {
@@ -154,50 +238,142 @@ export function ProfilePage() {
     },
   })
 
+  const [activeTab, setActiveTab] = useState("overview")
+  const [viewAllSections, setViewAllSections] = useState<Record<string, boolean>>({
+    skills: false,
+    projects: false,
+    experience: false,
+  })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate loading data
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   const handleUpdateUserData = (section: string, data: any) => {
-    setUserData((prev) => ({
+    setUserData((prev) => {
+      // Create a new state object to ensure React detects the change
+      const newState = { ...prev }
+
+      // If data is an object with key-value pairs (like from ProfileHeader)
+      if (typeof data === "object" && !Array.isArray(data) && data !== null && section === "") {
+        // Merge the data directly into userData
+        Object.keys(data).forEach((key) => {
+          newState[key] = data[key]
+        })
+      } else {
+        // Update the specific section
+        newState[section] = data
+      }
+
+      return newState
+    })
+
+    // Add a small delay to ensure smooth animation and force a re-render
+    setTimeout(() => {
+      // Force a re-render if needed
+      setUserData((current) => ({ ...current }))
+
+      // Show a success toast for the update
+      toast({
+        title: "Profile updated",
+        description: `Your ${section || "profile"} has been updated successfully.`,
+        type: "success",
+      })
+    }, 100)
+  }
+
+  // Add a function to handle adding a new project
+  const handleAddNewProject = () => {
+    setActiveTab("projects")
+    // Add a small delay to ensure the tab change is complete
+    setTimeout(() => {
+      // Find the "Add Project" button and click it
+      const addProjectButton = document.querySelector('[aria-label="Add Project"]') as HTMLButtonElement
+      if (addProjectButton) {
+        addProjectButton.click()
+      }
+    }, 200)
+  }
+
+  // Add a function to handle adding a new experience
+  const handleAddNewExperience = () => {
+    setActiveTab("experience")
+    // Add a small delay to ensure the tab change is complete
+    setTimeout(() => {
+      // Find the "Add Experience" button and click it
+      const addExperienceButton = document.querySelector('[aria-label="Add Experience"]') as HTMLButtonElement
+      if (addExperienceButton) {
+        addExperienceButton.click()
+      }
+    }, 200)
+  }
+
+  const toggleViewAll = (section: string) => {
+    setViewAllSections((prev) => ({
       ...prev,
-      [section]: data,
+      [section]: !prev[section],
     }))
+
+    // Switch to the appropriate tab when "View All" is clicked
+    setActiveTab(section)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-white via-violet-50/30 to-white text-violet-950 dark:from-black dark:via-zinc-900/50 dark:to-black dark:text-white">
+        <div className="h-16 w-16 animate-spin rounded-full border-4 border-violet-200 border-t-violet-600"></div>
+        <p className="mt-4 text-lg font-medium">Loading profile...</p>
+      </div>
+    )
   }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gradient-to-b from-white via-violet-50/30 to-white text-violet-950 dark:from-black dark:via-zinc-900/50 dark:to-black dark:text-white">
       <PremiumNavbar />
-      <main className="flex-1 pt-20">
+      <motion.main className="flex-1 pt-20" variants={pageVariants} initial="initial" animate="animate" exit="exit">
         <div className="container px-4 py-8 md:px-8 lg:px-12">
-          <ProfileHeader userData={userData} onUpdate={(data) => handleUpdateUserData("socialLinks", data)} />
+          <motion.div variants={itemVariants}>
+            <ProfileHeader userData={userData} onUpdate={(data) => handleUpdateUserData("", data)} />
+          </motion.div>
 
-          <div className="mt-8">
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="mb-8 grid w-full grid-cols-2 gap-4 rounded-lg bg-violet-100/50 p-2 dark:bg-violet-900/20 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
-                <TabsTrigger value="overview" className="rounded-md">
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger value="skills" className="rounded-md">
-                  Skills
-                </TabsTrigger>
-                <TabsTrigger value="projects" className="rounded-md">
-                  Projects
-                </TabsTrigger>
-                <TabsTrigger value="experience" className="rounded-md">
-                  Experience
-                </TabsTrigger>
-                <TabsTrigger value="connections" className="rounded-md">
-                  Network
-                </TabsTrigger>
-                <TabsTrigger value="achievements" className="rounded-md">
-                  Achievements
-                </TabsTrigger>
-                <TabsTrigger value="growth" className="rounded-md">
-                  Growth
-                </TabsTrigger>
-                <TabsTrigger value="activity" className="rounded-md">
-                  Activity
-                </TabsTrigger>
-              </TabsList>
+          <motion.div variants={itemVariants} className="mt-8">
+            <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="mb-8 overflow-x-auto">
+                <TabsList className="grid min-w-max w-full grid-cols-8 gap-4 rounded-lg bg-violet-100/50 p-2 dark:bg-violet-900/20">
+                  <TabsTrigger value="overview" className="rounded-md">
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="skills" className="rounded-md">
+                    Skills
+                  </TabsTrigger>
+                  <TabsTrigger value="projects" className="rounded-md">
+                    Projects
+                  </TabsTrigger>
+                  <TabsTrigger value="experience" className="rounded-md">
+                    Experience
+                  </TabsTrigger>
+                  <TabsTrigger value="connections" className="rounded-md">
+                    Network
+                  </TabsTrigger>
+                  <TabsTrigger value="achievements" className="rounded-md">
+                    Achievements
+                  </TabsTrigger>
+                  <TabsTrigger value="growth" className="rounded-md">
+                    Growth
+                  </TabsTrigger>
+                  <TabsTrigger value="activity" className="rounded-md">
+                    Activity
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-              <TabsContent value="overview" className="space-y-8">
+              <TabsContent value="overview" className="space-y-8 animate-in fade-in-50">
                 <div className="grid gap-8 md:grid-cols-3">
                   <div className="md:col-span-2">
                     <ProfileAbout about={userData.about} onUpdate={(about) => handleUpdateUserData("about", about)} />
@@ -207,16 +383,25 @@ export function ProfilePage() {
                   </div>
                 </div>
 
-                <ProfileSkills skills={userData.skills} onUpdate={(skills) => handleUpdateUserData("skills", skills)} />
+                <ProfileSkills
+                  skills={userData.skills}
+                  onUpdate={(skills) => handleUpdateUserData("skills", skills)}
+                  viewAll={viewAllSections.skills}
+                  onViewAllClick={() => toggleViewAll("skills")}
+                />
 
                 <div className="grid gap-8 md:grid-cols-2">
                   <ProfileProjects
-                    projects={userData.projects.slice(0, 1)}
+                    projects={viewAllSections.projects ? userData.projects : userData.projects.slice(0, 1)}
                     onUpdate={(projects) => handleUpdateUserData("projects", projects)}
+                    viewAll={viewAllSections.projects}
+                    onViewAllClick={() => toggleViewAll("projects")}
                   />
                   <ProfileExperience
-                    experience={userData.experience.slice(0, 1)}
+                    experience={viewAllSections.experience ? userData.experience : userData.experience.slice(0, 1)}
                     onUpdate={(experience) => handleUpdateUserData("experience", experience)}
+                    viewAll={viewAllSections.experience}
+                    onViewAllClick={() => toggleViewAll("experience")}
                   />
                 </div>
 
@@ -228,52 +413,102 @@ export function ProfilePage() {
                 <ProfileActivity activity={userData.activity.slice(0, 3)} analytics={userData.analytics} />
               </TabsContent>
 
-              <TabsContent value="skills">
+              <TabsContent value="skills" className="animate-in fade-in-50">
                 <ProfileSkills
                   skills={userData.skills}
                   onUpdate={(skills) => handleUpdateUserData("skills", skills)}
-                  showAll
+                  viewAll={true}
                 />
               </TabsContent>
 
-              <TabsContent value="projects">
+              <TabsContent value="projects" className="animate-in fade-in-50">
                 <ProfileProjects
                   projects={userData.projects}
                   onUpdate={(projects) => handleUpdateUserData("projects", projects)}
-                  showAll
+                  viewAll={true}
                 />
               </TabsContent>
 
-              <TabsContent value="experience">
+              <TabsContent value="experience" className="animate-in fade-in-50">
                 <ProfileExperience
                   experience={userData.experience}
                   onUpdate={(experience) => handleUpdateUserData("experience", experience)}
-                  showAll
+                  viewAll={true}
                 />
               </TabsContent>
 
-              <TabsContent value="connections">
+              <TabsContent value="connections" className="animate-in fade-in-50">
                 <ProfileConnections connections={userData.connections} showAll />
               </TabsContent>
 
-              <TabsContent value="achievements">
+              <TabsContent value="achievements" className="animate-in fade-in-50">
                 <ProfileAchievements achievements={userData.achievements} showAll />
               </TabsContent>
 
-              <TabsContent value="growth">
+              <TabsContent value="growth" className="animate-in fade-in-50">
                 <div className="grid gap-8 md:grid-cols-2">
                   <ProfileGrowth suggestions={userData.growthSuggestions} />
                   <ProfileCollaboration projects={userData.collaborationProjects} />
                 </div>
               </TabsContent>
 
-              <TabsContent value="activity">
+              <TabsContent value="activity" className="animate-in fade-in-50">
                 <ProfileActivity activity={userData.activity} analytics={userData.analytics} showAll />
               </TabsContent>
             </Tabs>
-          </div>
+          </motion.div>
+
+          {/* Quick Actions Floating Button */}
+          <motion.div
+            className="fixed bottom-6 right-6 z-50"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.5, type: "spring" }}
+          >
+            <div className="relative group">
+              <Button
+                size="lg"
+                className="h-14 w-14 rounded-full bg-gradient-to-r from-violet-600 to-amber-600 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Icons.plus className="h-6 w-6" />
+              </Button>
+
+              <div className="absolute bottom-full right-0 mb-4 hidden flex-col gap-2 group-hover:flex">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="flex items-center gap-2 rounded-full shadow-md transform transition-transform duration-200 hover:scale-105"
+                  onClick={() => setActiveTab("projects")}
+                  aria-label="Add Project"
+                >
+                  <Icons.briefcase className="h-4 w-4" />
+                  <span>Add Project</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="flex items-center gap-2 rounded-full shadow-md transform transition-transform duration-200 hover:scale-105"
+                  onClick={() => setActiveTab("skills")}
+                  aria-label="Add Skill"
+                >
+                  <Icons.code className="h-4 w-4" />
+                  <span>Add Skill</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="flex items-center gap-2 rounded-full shadow-md transform transition-transform duration-200 hover:scale-105"
+                  onClick={() => setActiveTab("experience")}
+                  aria-label="Add Experience"
+                >
+                  <Icons.briefcase className="h-4 w-4" />
+                  <span>Add Experience</span>
+                </Button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </main>
+      </motion.main>
       <PremiumFooter />
     </div>
   )

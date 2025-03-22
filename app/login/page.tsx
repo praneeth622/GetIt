@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
@@ -36,7 +38,13 @@ export default function LoginPage() {
 
     setTimeout(() => {
       setIsLoading(false)
+      // Redirect to dashboard or home page after successful login
+      router.push("/profiles")
     }, 1500)
+  }
+
+  const handleSignUpClick = () => {
+    router.push("/signup-options")
   }
 
   return (
@@ -310,12 +318,13 @@ export default function LoginPage() {
 
                 <div className="mt-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
                   Don&apos;t have an account?{" "}
-                  <Link
-                    href="/signup"
-                    className="font-medium text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+                  <Button
+                    variant="link"
+                    className="p-0 font-medium text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+                    onClick={handleSignUpClick}
                   >
                     Sign up
-                  </Link>
+                  </Button>
                 </div>
               </motion.form>
             </div>
