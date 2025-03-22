@@ -264,11 +264,11 @@ export function ProfilePage() {
       if (typeof data === "object" && !Array.isArray(data) && data !== null && section === "") {
         // Merge the data directly into userData
         Object.keys(data).forEach((key) => {
-          newState[key] = data[key]
+          newState[key as keyof typeof newState] = data[key]
         })
       } else {
         // Update the specific section
-        newState[section] = data
+        newState[section as keyof typeof newState] = data
       }
 
       return newState
