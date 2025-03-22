@@ -32,13 +32,13 @@ export function SignupStepFive({ formData, updateFormData, nextStep, prevStep, i
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false)
-      nextStep()
-    }, 2000)
+    
+    try {
+      // This will trigger the registration process in the parent component
+      await updateFormData(formData)
+    } catch (error) {
+      console.error("Error during registration:", error)
+    }
   }
 
   // Map skill IDs to labels
