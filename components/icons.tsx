@@ -32,6 +32,8 @@ import {
   UserPlus,
   Edit,
   Globe,
+  Phone,
+  GraduationCap,
 } from "lucide-react"
 
 import {
@@ -115,6 +117,8 @@ export const Icons = {
   trophy: Trophy,
   activity: Activity,
   edit: Edit,
+  phone: Phone,
+  graduationCap: GraduationCap,
   gitHub: ({ ...props }) => (
     <svg
       aria-hidden="true"

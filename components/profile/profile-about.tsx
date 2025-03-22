@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "@/hooks/use-toast"
 
 interface ProfileAboutProps {
   about: string
@@ -19,6 +20,10 @@ export function ProfileAbout({ about, onUpdate }: ProfileAboutProps) {
   const handleSave = () => {
     onUpdate(editedAbout)
     setIsEditing(false)
+    toast({
+      title: "Profile updated",
+      description: "Your about section has been updated successfully.",
+    })
   }
 
   return (

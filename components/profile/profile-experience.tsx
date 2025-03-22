@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "@/hooks/use-toast"
 
 interface Experience {
   company: string
@@ -20,10 +21,11 @@ interface Experience {
 interface ProfileExperienceProps {
   experience: Experience[]
   onUpdate: (experience: Experience[]) => void
-  showAll?: boolean
+  viewAll?: boolean
+  onViewAllClick?: () => void
 }
 
-export function ProfileExperience({ experience, onUpdate, showAll = false }: ProfileExperienceProps) {
+export function ProfileExperience({ experience, onUpdate, viewAll = false, onViewAllClick }: ProfileExperienceProps) {
   const [isAddingExperience, setIsAddingExperience] = useState(false)
   const [newExperience, setNewExperience] = useState<Experience>({
     company: "",
@@ -34,13 +36,47 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
   })
   const [newResponsibility, setNewResponsibility] = useState("")
   const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null)
+  const [isEditingExperience, setIsEditingExperience] = useState<string | null>(null)
+  const [editedExperience, setEditedExperience] = useState<Experience | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const experienceEndRef = useRef<HTMLDivElement>(null)
 
-  const displayedExperience = showAll ? experience : experience.slice(0, 2)
+  const displayedExperience = viewAll ? experience : experience.slice(0, 3)
 
+  // Scroll to the newly added experience
+  useEffect(() => {
+    if (experienceEndRef.current) {
+      experienceEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [experience.length])
+
+  // Handle adding a new experience
   const handleAddExperience = () => {
-    if (newExperience.company.trim() === "" || newExperience.role.trim() === "") return
+    if (newExperience.company.trim() === "" || newExperience.role.trim() === "") {
+      toast({
+        title: "Error",
+        description: "Company and role are required",
+        type: "error",
+      })
+      return
+    }
 
-    onUpdate([...experience, newExperience])
+    // Make a deep copy of the current experience array
+    const updatedExperience = [...experience]
+
+    // Add the new experience with all its details
+    updatedExperience.push({
+      ...newExperience,
+      // Ensure responsibilities is an array
+      responsibilities: [...newExperience.responsibilities],
+      // Set a default rating if not provided
+      rating: newExperience.rating || 0,
+    })
+
+    // Update the experience state
+    onUpdate(updatedExperience)
+
+    // Reset the form
     setNewExperience({
       company: "",
       role: "",
@@ -48,29 +84,136 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
       responsibilities: [],
       rating: 0,
     })
+
     setIsAddingExperience(false)
+    setNewResponsibility("")
+
+    // Show success toast
+    toast({
+      title: "Experience added",
+      description: `Your experience at ${newExperience.company} has been added successfully.`,
+      type: "success",
+    })
+
+    // Set current index to show the newly added experience
+    if (!viewAll && updatedExperience.length > 0) {
+      setCurrentIndex(Math.min(2, updatedExperience.length - 1))
+    }
   }
 
+  // Handle deleting an experience
   const handleDeleteExperience = (company: string) => {
-    onUpdate(experience.filter((exp) => exp.company !== company))
+    const updatedExperience = experience.filter((exp) => exp.company !== company)
+    onUpdate(updatedExperience)
     setExperienceToDelete(null)
+
+    // Adjust current index if needed
+    if (currentIndex >= updatedExperience.length && currentIndex > 0) {
+      setCurrentIndex(updatedExperience.length - 1)
+    }
+
+    toast({
+      title: "Experience deleted",
+      description: `Experience at ${company} has been removed.`,
+      type: "success",
+    })
   }
 
+  // Handle adding a responsibility
   const handleAddResponsibility = () => {
     if (newResponsibility.trim() === "") return
 
+    // Create a new array with the existing responsibilities plus the new one
+    const updatedResponsibilities = [...newExperience.responsibilities, newResponsibility.trim()]
+
+    // Update the newExperience state with the updated responsibilities array
     setNewExperience({
       ...newExperience,
-      responsibilities: [...newExperience.responsibilities, newResponsibility],
+      responsibilities: updatedResponsibilities,
     })
+
+    // Clear the input field
     setNewResponsibility("")
   }
 
+  // Handle removing a responsibility
   const handleRemoveResponsibility = (responsibility: string) => {
     setNewExperience({
       ...newExperience,
       responsibilities: newExperience.responsibilities.filter((r) => r !== responsibility),
     })
+  }
+
+  // Start editing an experience
+  const startEditingExperience = (exp: Experience) => {
+    setIsEditingExperience(exp.company)
+    setEditedExperience({ ...exp })
+  }
+
+  // Handle saving edited experience
+  const handleEditExperience = () => {
+    if (!editedExperience || !isEditingExperience) return
+
+    const updatedExperience = experience.map((exp) => (exp.company === isEditingExperience ? editedExperience : exp))
+
+    onUpdate(updatedExperience)
+    setIsEditingExperience(null)
+    setEditedExperience(null)
+
+    toast({
+      title: "Experience updated",
+      description: `Experience at ${editedExperience.company} has been updated successfully.`,
+      type: "success",
+    })
+  }
+
+  // Handle changes to edited experience fields
+  const handleEditedExperienceChange = (field: string, value: any) => {
+    if (!editedExperience) return
+
+    setEditedExperience({
+      ...editedExperience,
+      [field]: value,
+    })
+  }
+
+  // Handle adding a responsibility to an edited experience
+  const handleEditedResponsibilityAdd = () => {
+    if (!editedExperience || !newResponsibility.trim()) return
+
+    setEditedExperience({
+      ...editedExperience,
+      responsibilities: [...editedExperience.responsibilities, newResponsibility],
+    })
+    setNewResponsibility("")
+  }
+
+  // Handle removing a responsibility from an edited experience
+  const handleEditedResponsibilityRemove = (responsibility: string) => {
+    if (!editedExperience) return
+
+    setEditedExperience({
+      ...editedExperience,
+      responsibilities: editedExperience.responsibilities.filter((r) => r !== responsibility),
+    })
+  }
+
+  // Handle next experience in carousel
+  const handleNextExperience = () => {
+    if (currentIndex < displayedExperience.length - 1) {
+      setCurrentIndex(currentIndex + 1)
+    } else {
+      setCurrentIndex(0) // Loop back to the first experience
+    }
+  }
+
+  // Handle previous experience in carousel
+  const handlePrevExperience = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1)
+    } else {
+      setCurrentIndex(displayedExperience.length - 1) // Loop to the last experience
+    }
   }
 
   return (
@@ -86,6 +229,7 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
               <Button
                 className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
                 size="sm"
+                aria-label="Add Experience"
               >
                 <Icons.plus className="mr-1 h-4 w-4" />
                 Add Experience
@@ -147,6 +291,12 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
                       onChange={(e) => setNewResponsibility(e.target.value)}
                       placeholder="Add a key responsibility"
                       className="flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleAddResponsibility()
+                        }
+                      }}
                     />
                     <Button type="button" onClick={handleAddResponsibility} variant="outline">
                       Add
@@ -175,15 +325,15 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
                 <Button
                   className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
                   size="sm"
+                  aria-label="Add Experience"
                 >
                   <Icons.plus className="mr-1 h-4 w-4" />
                   Add Experience
                 </Button>
               </DialogTrigger>
-              {/* Dialog content is the same as above */}
             </Dialog>
           </div>
-        ) : (
+        ) : viewAll ? (
           <div className="space-y-6">
             <AnimatePresence>
               {displayedExperience.map((exp, index) => (
@@ -193,13 +343,14 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="group relative rounded-lg border border-violet-100 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-violet-800/30 dark:bg-zinc-900/80"
+                  className="group relative rounded-lg border border-violet-100 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 dark:border-violet-800/30 dark:bg-zinc-900/80"
                 >
                   <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 rounded-full text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+                      onClick={() => startEditingExperience(exp)}
                     >
                       <Icons.edit className="h-3.5 w-3.5" />
                       <span className="sr-only">Edit</span>
@@ -236,27 +387,234 @@ export function ProfileExperience({ experience, onUpdate, showAll = false }: Pro
                       Key Responsibilities:
                     </h4>
                     <ul className="ml-5 list-disc space-y-1 text-sm text-violet-700 dark:text-violet-300">
-                      {exp.responsibilities.map((responsibility, idx) => (
-                        <li key={idx}>{responsibility}</li>
-                      ))}
+                      {exp.responsibilities &&
+                        exp.responsibilities.map((responsibility, idx) => <li key={idx}>{responsibility}</li>)}
                     </ul>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
+            <div ref={experienceEndRef} />
+          </div>
+        ) : (
+          <>
+            {displayedExperience.length > 0 ? (
+              <div className="relative">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="group relative rounded-lg border border-violet-100 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-violet-800/30 dark:bg-zinc-900/80"
+                  >
+                    <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+                        onClick={() => startEditingExperience(displayedExperience[currentIndex])}
+                      >
+                        <Icons.edit className="h-3.5 w-3.5" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                        onClick={() => setExperienceToDelete(displayedExperience[currentIndex].company)}
+                      >
+                        <Icons.trash className="h-3.5 w-3.5" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
 
-            {!showAll && experience.length > 2 && (
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  className="text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
-                >
-                  View all {experience.length} experiences
-                </Button>
+                    <div className="mb-4 flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-medium text-violet-900 dark:text-white">
+                          {displayedExperience[currentIndex]?.role}
+                        </h3>
+                        <p className="text-violet-700 dark:text-violet-300">
+                          {displayedExperience[currentIndex]?.company}
+                        </p>
+                        <p className="text-sm text-violet-600 dark:text-violet-400">
+                          {displayedExperience[currentIndex]?.duration}
+                        </p>
+                      </div>
+                      <div className="flex items-center text-amber-500">
+                        {[...Array(5)].map((_, i) => (
+                          <Icons.star
+                            key={i}
+                            className={`h-4 w-4 ${i < Math.floor(displayedExperience[currentIndex]?.rating || 0) ? "fill-current" : "fill-none"}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="mb-2 text-sm font-medium text-violet-800 dark:text-violet-200">
+                        Key Responsibilities:
+                      </h4>
+                      <ul className="ml-5 list-disc space-y-1 text-sm text-violet-700 dark:text-violet-300">
+                        {displayedExperience[currentIndex]?.responsibilities &&
+                          displayedExperience[currentIndex]?.responsibilities.map((responsibility, idx) => (
+                            <li key={idx}>{responsibility}</li>
+                          ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation buttons */}
+                <div className="absolute left-0 right-0 top-1/2 flex -translate-y-1/2 justify-between px-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handlePrevExperience}
+                    className="h-8 w-8 rounded-full bg-white/80 text-violet-600 shadow-md backdrop-blur-sm hover:bg-white hover:text-violet-700 dark:bg-zinc-900/80 dark:text-violet-400 dark:hover:bg-zinc-800/80 dark:hover:text-violet-300"
+                  >
+                    <Icons.chevronLeft className="h-4 w-4" />
+                    <span className="sr-only">Previous</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleNextExperience}
+                    className="h-8 w-8 rounded-full bg-white/80 text-violet-600 shadow-md backdrop-blur-sm hover:bg-white hover:text-violet-700 dark:bg-zinc-900/80 dark:text-violet-400 dark:hover:bg-zinc-800/80 dark:hover:text-violet-300"
+                  >
+                    <Icons.chevronRight className="h-4 w-4" />
+                    <span className="sr-only">Next</span>
+                  </Button>
+                </div>
+
+                {/* Pagination indicators */}
+                <div className="mt-4 flex justify-center gap-2">
+                  {displayedExperience.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`h-2 rounded-full transition-all ${
+                        index === currentIndex
+                          ? "w-6 bg-violet-600 dark:bg-violet-500"
+                          : "w-2 bg-violet-200 dark:bg-violet-800"
+                      }`}
+                      onClick={() => setCurrentIndex(index)}
+                      aria-label={`Go to experience ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-violet-200 bg-violet-50/50 p-8 text-center dark:border-violet-800/30 dark:bg-violet-900/10">
+                <Icons.briefcase className="mb-2 h-10 w-10 text-violet-400 dark:text-violet-500" />
+                <h3 className="mb-1 text-lg font-medium text-violet-900 dark:text-white">No work experience yet</h3>
+                <p className="mb-4 text-sm text-violet-700 dark:text-violet-300">
+                  Add your work history to showcase your professional experience
+                </p>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
+                      size="sm"
+                      aria-label="Add Experience"
+                    >
+                      <Icons.plus className="mr-1 h-4 w-4" />
+                      Add Experience
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
               </div>
             )}
+          </>
+        )}
+
+        {!viewAll && experience.length > 3 && (
+          <div className="mt-4 text-center">
+            <Button
+              variant="link"
+              className="text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+              onClick={onViewAllClick}
+            >
+              View all {experience.length} experiences
+            </Button>
           </div>
         )}
+
+        {/* Edit Experience Dialog */}
+        <Dialog open={isEditingExperience !== null} onOpenChange={(open) => !open && setIsEditingExperience(null)}>
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Edit Work Experience</DialogTitle>
+            </DialogHeader>
+            {editedExperience && (
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="editCompany">Company/Organization</Label>
+                  <Input
+                    id="editCompany"
+                    value={editedExperience.company}
+                    onChange={(e) => handleEditedExperienceChange("company", e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="editRole">Job Title/Role</Label>
+                  <Input
+                    id="editRole"
+                    value={editedExperience.role}
+                    onChange={(e) => handleEditedExperienceChange("role", e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="editDuration">Duration</Label>
+                  <Input
+                    id="editDuration"
+                    value={editedExperience.duration}
+                    onChange={(e) => handleEditedExperienceChange("duration", e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Key Responsibilities</Label>
+                  <ul className="space-y-2">
+                    {editedExperience.responsibilities.map((responsibility, index) => (
+                      <li
+                        key={index}
+                        className="flex items-center justify-between rounded-md bg-violet-50 px-3 py-2 text-sm text-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+                      >
+                        <span>{responsibility}</span>
+                        <button
+                          onClick={() => handleEditedResponsibilityRemove(responsibility)}
+                          className="ml-2 rounded-full text-red-500 hover:text-red-700"
+                        >
+                          <Icons.x className="h-4 w-4" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newResponsibility}
+                      onChange={(e) => setNewResponsibility(e.target.value)}
+                      placeholder="Add a key responsibility"
+                      className="flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleEditedResponsibilityAdd()
+                        }
+                      }}
+                    />
+                    <Button type="button" onClick={handleEditedResponsibilityAdd} variant="outline">
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end">
+              <Button onClick={handleEditExperience}>Save Changes</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={experienceToDelete !== null} onOpenChange={(open) => !open && setExperienceToDelete(null)}>
