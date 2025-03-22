@@ -12,14 +12,15 @@ import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase" // Import auth from firebase.ts
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { toast } from "sonner"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
-  const auth = getAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -38,13 +39,23 @@ export default function LoginPage() {
     event.preventDefault()
     setIsLoading(true)
 
-    
-
-    setTimeout(() => {
+    try {
+      const result = await signInWithEmailAndPassword(auth, formData.email, formData.password)
+      if (result.user) {
+        toast.success("Successfully logged in!")
+        router.push("/profiles")
+      }
+    } catch (error: any) {
+      let message = "Failed to login"
+      if (error.code === 'auth/user-not-found') {
+        message = "User not found"
+      } else if (error.code === 'auth/wrong-password') {
+        message = "Invalid password"
+      }
+      toast.error(message)
+    } finally {
       setIsLoading(false)
-      // Redirect to dashboard or home page after successful login
-      router.push("/profiles")
-    }, 1500)
+    }
   }
 
   const handleSignUpClick = () => {

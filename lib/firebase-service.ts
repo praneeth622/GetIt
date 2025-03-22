@@ -30,11 +30,9 @@ export interface UserDetails {
 
 export async function registerUser(email: string, password: string, userData: UserDetails) {
   try {
-    // Create user authentication
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
     const { user } = userCredential
 
-    // Create user document
     const userDoc = doc(db, `users/${user.uid}/data/user_details`)
     await setDoc(userDoc, {
       ...userData,
