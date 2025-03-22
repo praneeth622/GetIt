@@ -12,12 +12,18 @@ import { SignupStepFour } from "@/components/signup/signup-step-four"
 import { SignupStepFive } from "@/components/signup/signup-step-five"
 import { SignupComplete } from "@/components/signup/signup-complete"
 import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { registerUser } from "@/lib/firebase-service"
+import { UserDetails } from "@/lib/firebase-service"
 
 export default function SignupPage() {
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -52,8 +58,37 @@ export default function SignupPage() {
 
   const totalSteps = 5
 
+  const handleRegistration = async (formData: any) => {
+    setIsSubmitting(true)
+    try {
+      // Remove confirmPassword from data being sent to Firebase
+      const { confirmPassword, ...userData } = formData
+      
+      const { success, userId } = await registerUser(
+        formData.email,
+        formData.password,
+        userData as UserDetails
+      )
+
+      if (success) {
+        toast.success("Registration successful!")
+        router.push("/dashboard")
+      }
+    } catch (error: any) {
+      toast.error(error.message)
+      setStep(1) // Return to first step on error
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Update the updateFormData function to handle final submission
   const updateFormData = (data: any) => {
-    setFormData({ ...formData, ...data })
+    if (step === 5 && !isSubmitting) {
+      handleRegistration({ ...formData, ...data })
+    } else {
+      setFormData({ ...formData, ...data })
+    }
   }
 
   const nextStep = () => {

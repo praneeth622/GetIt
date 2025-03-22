@@ -12,12 +12,14 @@ import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
+  const auth = getAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -35,6 +37,8 @@ export default function LoginPage() {
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()
     setIsLoading(true)
+
+    
 
     setTimeout(() => {
       setIsLoading(false)

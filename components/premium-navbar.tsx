@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getAuth, onAuthStateChanged, User } from "firebase/auth"
 
 export function PremiumNavbar() {
   const [isScrolled, setIsScrolled] = useState(false)
