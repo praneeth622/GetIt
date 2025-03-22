@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { toast } from "@/hooks/use-toast"
 
 interface Skill {
   name: string
@@ -21,10 +22,11 @@ interface Skill {
 interface ProfileSkillsProps {
   skills: Skill[]
   onUpdate: (skills: Skill[]) => void
-  showAll?: boolean
+  viewAll?: boolean
+  onViewAllClick?: () => void
 }
 
-export function ProfileSkills({ skills, onUpdate, showAll = false }: ProfileSkillsProps) {
+export function ProfileSkills({ skills, onUpdate, viewAll = false, onViewAllClick }: ProfileSkillsProps) {
   const [isAddingSkill, setIsAddingSkill] = useState(false)
   const [newSkill, setNewSkill] = useState({
     name: "",
@@ -35,31 +37,46 @@ export function ProfileSkills({ skills, onUpdate, showAll = false }: ProfileSkil
   const [isEditingSkill, setIsEditingSkill] = useState<string | null>(null)
   const [editedSkill, setEditedSkill] = useState<Skill | null>(null)
 
-  const displayedSkills = showAll ? skills : skills.slice(0, 6)
+  const displayedSkills = viewAll ? skills : skills.slice(0, 6)
 
   const handleAddSkill = () => {
     if (newSkill.name.trim() === "") return
 
-    onUpdate([...skills, newSkill])
+    const updatedSkills = [...skills, newSkill]
+    onUpdate(updatedSkills)
     setNewSkill({
       name: "",
       proficiency: "Beginner",
       endorsements: 0,
     })
     setIsAddingSkill(false)
+    toast({
+      title: "Skill added",
+      description: `${newSkill.name} has been added to your skills.`,
+    })
   }
 
   const handleDeleteSkill = (skillName: string) => {
-    onUpdate(skills.filter((skill) => skill.name !== skillName))
+    const updatedSkills = skills.filter((skill) => skill.name !== skillName)
+    onUpdate(updatedSkills)
     setSkillToDelete(null)
+    toast({
+      title: "Skill deleted",
+      description: `${skillName} has been removed from your skills.`,
+    })
   }
 
   const handleEditSkill = () => {
     if (!editedSkill || !isEditingSkill) return
 
-    onUpdate(skills.map((skill) => (skill.name === isEditingSkill ? editedSkill : skill)))
+    const updatedSkills = skills.map((skill) => (skill.name === isEditingSkill ? editedSkill : skill))
+    onUpdate(updatedSkills)
     setIsEditingSkill(null)
     setEditedSkill(null)
+    toast({
+      title: "Skill updated",
+      description: `${editedSkill.name} has been updated successfully.`,
+    })
   }
 
   const startEditingSkill = (skill: Skill) => {
@@ -197,7 +214,6 @@ export function ProfileSkills({ skills, onUpdate, showAll = false }: ProfileSkil
                   <Progress
                     value={getProficiencyValue(skill.proficiency)}
                     className="h-2 bg-violet-100 dark:bg-violet-900/30"
-                    indicatorClassName={`${getProficiencyColor(skill.proficiency)}`}
                   />
                 </div>
 
@@ -210,11 +226,12 @@ export function ProfileSkills({ skills, onUpdate, showAll = false }: ProfileSkil
           </AnimatePresence>
         </div>
 
-        {!showAll && skills.length > 6 && (
+        {!viewAll && skills.length > 6 && (
           <div className="mt-4 text-center">
             <Button
               variant="link"
               className="text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+              onClick={onViewAllClick}
             >
               View all {skills.length} skills
             </Button>
