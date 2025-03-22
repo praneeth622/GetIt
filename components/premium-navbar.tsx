@@ -365,7 +365,7 @@ export function PremiumNavbar() {
                   </Link>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                  <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link href="/signup-options" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button className="w-full bg-gradient-to-r from-violet-600 to-amber-600 text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-600/30 dark:shadow-violet-600/10 hover:from-violet-700 hover:to-amber-700">
                       Sign Up
                     </Button>

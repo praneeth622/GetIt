@@ -1,9 +1,10 @@
 import { auth, db } from "@/firebase"
-import { createUserWithEmailAndPassword } from "firebase/auth"
-import { doc, setDoc } from "firebase/firestore"
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"
+import { doc, setDoc, getDoc } from "firebase/firestore"
 
 export interface UserDetails {
   fullName: string
+  Role : string
   email: string
   university: string
   degree: string
@@ -47,5 +48,17 @@ export async function registerUser(email: string, password: string, userData: Us
       message = "This email is already registered"
     }
     throw new Error(message)
+  }
+}
+
+export async function getUserDetails(userId: string) {
+  try {
+    const userDoc = await getDoc(doc(db, `users/${userId}/data/user_details`))
+    if (userDoc.exists()) {
+      return userDoc.data() as UserDetails
+    }
+    throw new Error("User details not found")
+  } catch (error) {
+    throw new Error("Failed to fetch user details")
   }
 }

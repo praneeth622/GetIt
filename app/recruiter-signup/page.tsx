@@ -27,6 +27,7 @@ export default function RecruiterSignupPage() {
     confirmPassword: "",
     jobTitle: "",
     phoneNumber: "",
+    Role : "Recruiter",
 
     // Company Details
     companyName: "",
