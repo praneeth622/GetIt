@@ -19,10 +19,6 @@ export default function RecruiterSignupPage() {
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme } = useTheme()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   const [formData, setFormData] = useState({
     // Personal Information
     fullName: "",
@@ -66,6 +62,11 @@ export default function RecruiterSignupPage() {
   const updateFormData = (data: any) => {
     setFormData({ ...formData, ...data })
   }
+
+  // Only run this effect on the client side
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const nextStep = () => {
     if (step < totalSteps + 1) {
@@ -170,70 +171,72 @@ export default function RecruiterSignupPage() {
           <span className="hidden md:inline-block">SkillHub</span>
         </Link>
 
-        <motion.div
-          className="w-full max-w-2xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
-        >
+        {/* Don't render anything until mounted to prevent hydration mismatch */}
+        {!mounted ? null : (
           <motion.div
-            className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/90"
-            whileHover={{
-              boxShadow:
-                mounted && resolvedTheme === "light"
-                  ? "0 25px 50px -12px rgba(0,0,0,0.15)"
-                  : "0 25px 50px -12px rgba(0,0,0,0.5)",
-            }}
-            transition={{ duration: 0.3 }}
+            className="w-full max-w-2xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
           >
-            {/* Decorative elements */}
-            <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-gradient-to-br from-amber-600/30 to-orange-600/30 blur-2xl dark:from-amber-600/20 dark:to-orange-600/20"></div>
-            <div className="absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-gradient-to-br from-amber-600/30 to-rose-600/30 blur-2xl dark:from-amber-600/20 dark:to-rose-600/20"></div>
+            <motion.div
+              className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/90"
+              whileHover={{
+                boxShadow:
+                  mounted && resolvedTheme === "light"
+                    ? "0 25px 50px -12px rgba(0,0,0,0.15)"
+                    : "0 25px 50px -12px rgba(0,0,0,0.5)",
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Decorative elements */}
+              <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-gradient-to-br from-amber-600/30 to-orange-600/30 blur-2xl dark:from-amber-600/20 dark:to-orange-600/20"></div>
+              <div className="absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-gradient-to-br from-amber-600/30 to-rose-600/30 blur-2xl dark:from-amber-600/20 dark:to-rose-600/20"></div>
 
-            <div className="relative z-10 p-8">
-              <div className="mb-8 text-center">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 15 }}
-                  className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-amber-600/10 to-orange-600/10 dark:from-amber-600/20 dark:to-orange-600/20"
-                >
-                  <Icons.briefcase className="h-8 w-8 text-amber-600 dark:text-amber-400" />
-                </motion.div>
-                <motion.h1
-                  className="mb-2 bg-gradient-to-r from-zinc-900 to-zinc-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent dark:from-white dark:to-zinc-400"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
-                >
-                  {step === 6 ? "Welcome to SkillHub!" : "Create Recruiter Account"}
-                </motion.h1>
-                <motion.p
-                  className="text-sm text-zinc-500 dark:text-zinc-400"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  {step === 6
-                    ? "You're ready to find talented students for your company"
-                    : "Connect with skilled students and find the perfect match for your team"}
-                </motion.p>
-              </div>
+              <div className="relative z-10 p-8">
+                <div className="mb-8 text-center">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 15 }}
+                    className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-amber-600/10 to-orange-600/10 dark:from-amber-600/20 dark:to-orange-600/20"
+                  >
+                    <Icons.briefcase className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+                  </motion.div>
+                  <motion.h1
+                    className="mb-2 bg-gradient-to-r from-zinc-900 to-zinc-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent dark:from-white dark:to-zinc-400"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
+                  >
+                    {step === 6 ? "Welcome to SkillHub!" : "Create Recruiter Account"}
+                  </motion.h1>
+                  <motion.p
+                    className="text-sm text-zinc-500 dark:text-zinc-400"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    {step === 6
+                      ? "You're ready to find talented students for your company"
+                      : "Connect with skilled students and find the perfect match for your team"}
+                  </motion.p>
+                </div>
 
-              {step <= totalSteps && (
-                <div className="relative mb-8">
-                  <div className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800"></div>
-                  <div className="relative flex justify-between">
-                    {Array.from({ length: totalSteps }).map((_, index) => (
-                      <motion.div
-                        key={index}
-                        className="relative"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.1 * index }}
-                      >
+                {step <= totalSteps && (
+                  <div className="relative mb-8">
+                    <div className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800"></div>
+                    <div className="relative flex justify-between">
+                      {Array.from({ length: totalSteps }).map((_, index) => (
                         <motion.div
-                          className={`
+                          key={index}
+                          className="relative"
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.1 * index }}
+                        >
+                          <motion.div
+                            className={`
                             flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold
                             ${
                               step > index + 1
@@ -243,109 +246,110 @@ export default function RecruiterSignupPage() {
                                   : "border border-zinc-300 bg-white text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500"
                             }
                           `}
-                          whileHover={step <= index + 1 ? { scale: 1.05 } : {}}
-                          whileTap={step <= index + 1 ? { scale: 0.95 } : {}}
-                        >
-                          {step > index + 1 ? (
+                            whileHover={step <= index + 1 ? { scale: 1.05 } : {}}
+                            whileTap={step <= index + 1 ? { scale: 0.95 } : {}}
+                          >
+                            {step > index + 1 ? (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                              >
+                                <Icons.check className="h-6 w-6" />
+                              </motion.div>
+                            ) : (
+                              index + 1
+                            )}
+                          </motion.div>
+                          {step === index + 1 && (
                             <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                            >
-                              <Icons.check className="h-6 w-6" />
-                            </motion.div>
-                          ) : (
-                            index + 1
+                              className="absolute -bottom-1 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                              layoutId="activeStep"
+                              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            />
                           )}
                         </motion.div>
-                        {step === index + 1 && (
-                          <motion.div
-                            className="absolute -bottom-1 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
-                            layoutId="activeStep"
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                          />
-                        )}
-                      </motion.div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={step}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3, type: "spring", stiffness: 200, damping: 25 }}
-                >
-                  {step === 1 && (
-                    <RecruiterSignupStepOne
-                      formData={formData}
-                      updateFormData={updateFormData}
-                      nextStep={nextStep}
-                      isLoading={isLoading}
-                    />
-                  )}
-                  {step === 2 && (
-                    <RecruiterSignupStepTwo
-                      formData={formData}
-                      updateFormData={updateFormData}
-                      nextStep={nextStep}
-                      prevStep={prevStep}
-                      isLoading={isLoading}
-                    />
-                  )}
-                  {step === 3 && (
-                    <RecruiterSignupStepThree
-                      formData={formData}
-                      updateFormData={updateFormData}
-                      nextStep={nextStep}
-                      prevStep={prevStep}
-                      isLoading={isLoading}
-                    />
-                  )}
-                  {step === 4 && (
-                    <RecruiterSignupStepFour
-                      formData={formData}
-                      updateFormData={updateFormData}
-                      nextStep={nextStep}
-                      prevStep={prevStep}
-                      isLoading={isLoading}
-                    />
-                  )}
-                  {step === 5 && (
-                    <RecruiterSignupStepFive
-                      formData={formData}
-                      updateFormData={updateFormData}
-                      nextStep={nextStep}
-                      prevStep={prevStep}
-                      isLoading={isLoading}
-                    />
-                  )}
-                  {step === 6 && <RecruiterSignupComplete />}
-                </motion.div>
-              </AnimatePresence>
-
-              {step <= totalSteps && (
-                <motion.div
-                  className="mt-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  Already have an account?{" "}
-                  <Link
-                    href="/login"
-                    className="font-medium text-amber-600 transition-colors hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3, type: "spring", stiffness: 200, damping: 25 }}
                   >
-                    Sign in
-                  </Link>
-                </motion.div>
-              )}
-            </div>
+                    {step === 1 && (
+                      <RecruiterSignupStepOne
+                        formData={formData}
+                        updateFormData={updateFormData}
+                        nextStep={nextStep}
+                        isLoading={isLoading}
+                      />
+                    )}
+                    {step === 2 && (
+                      <RecruiterSignupStepTwo
+                        formData={formData}
+                        updateFormData={updateFormData}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        isLoading={isLoading}
+                      />
+                    )}
+                    {step === 3 && (
+                      <RecruiterSignupStepThree
+                        formData={formData}
+                        updateFormData={updateFormData}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        isLoading={isLoading}
+                      />
+                    )}
+                    {step === 4 && (
+                      <RecruiterSignupStepFour
+                        formData={formData}
+                        updateFormData={updateFormData}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        isLoading={isLoading}
+                      />
+                    )}
+                    {step === 5 && (
+                      <RecruiterSignupStepFive
+                        formData={formData}
+                        updateFormData={updateFormData}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        isLoading={isLoading}
+                      />
+                    )}
+                    {step === 6 && <RecruiterSignupComplete />}
+                  </motion.div>
+                </AnimatePresence>
+
+                {step <= totalSteps && (
+                  <motion.div
+                    className="mt-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    Already have an account?{" "}
+                    <Link
+                      href="/login"
+                      className="font-medium text-amber-600 transition-colors hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+                    >
+                      Sign in
+                    </Link>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        )}
       </div>
 
       {/* Floating particles */}

@@ -12,6 +12,11 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     setMounted(true)
   }, [])
 
-  return <NextThemesProvider {...props}>{mounted && children}</NextThemesProvider>
+  // Return a simple div until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return <div style={{ visibility: "hidden" }}>{children}</div>
+  }
+
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }
 
