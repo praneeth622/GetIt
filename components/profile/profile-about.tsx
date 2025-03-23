@@ -10,15 +10,16 @@ import { toast } from "@/hooks/use-toast"
 
 interface ProfileAboutProps {
   about: string
-  onUpdate: (about: string) => void
+  onUpdate?: (about: string) => void
+  isEditable?: boolean
 }
 
-export function ProfileAbout({ about, onUpdate }: ProfileAboutProps) {
+export function ProfileAbout({ about, onUpdate, isEditable = false }: ProfileAboutProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedAbout, setEditedAbout] = useState(about)
 
   const handleSave = () => {
-    onUpdate(editedAbout)
+    onUpdate?.(editedAbout)
     setIsEditing(false)
     toast({
       title: "Profile updated",
@@ -34,7 +35,7 @@ export function ProfileAbout({ about, onUpdate }: ProfileAboutProps) {
             <Icons.user className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             <CardTitle>About</CardTitle>
           </div>
-          {!isEditing ? (
+          {isEditable && !isEditing && (
             <Button
               variant="ghost"
               size="sm"
@@ -44,7 +45,8 @@ export function ProfileAbout({ about, onUpdate }: ProfileAboutProps) {
               <Icons.edit className="h-4 w-4" />
               <span className="ml-1">Edit</span>
             </Button>
-          ) : (
+          )}
+          {isEditable && isEditing && (
             <div className="flex gap-2">
               <Button
                 variant="ghost"
@@ -79,7 +81,7 @@ export function ProfileAbout({ about, onUpdate }: ProfileAboutProps) {
             transition={{ duration: 0.3 }}
             className="text-violet-800 dark:text-violet-200"
           >
-            {about}
+            {about || "No information provided yet."}
           </motion.div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>

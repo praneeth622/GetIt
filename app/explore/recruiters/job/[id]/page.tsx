@@ -14,6 +14,7 @@ import {
   updateJobStatus,
   JobData,
   StudentData,
+  updateJob,
 } from "@/lib/firebase-service";
 import {
   Dialog,

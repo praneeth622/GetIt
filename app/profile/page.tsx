@@ -54,7 +54,7 @@ export default function ProfilePage() {
           if (!isMounted) return;
           
           if (userDetails.Role?.toLowerCase() === "recruiter") {
-            router.push(`/explore/recruiters/job`); // Direct to recruiter dashboard
+            router.push(`/explore/recruiters/${user.uid}`); // Direct to recruiter dashboard
           } else if (userDetails.Role?.toLowerCase() === "student") {
             router.push(`/profiles/students/${user.uid}`); // Direct to student profile
           } else {

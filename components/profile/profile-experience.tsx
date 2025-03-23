@@ -23,9 +23,10 @@ interface ProfileExperienceProps {
   onUpdate: (experience: Experience[]) => void
   viewAll?: boolean
   onViewAllClick?: () => void
+  isEditable?: boolean
 }
 
-export function ProfileExperience({ experience, onUpdate, viewAll = false, onViewAllClick }: ProfileExperienceProps) {
+export function ProfileExperience({ experience, onUpdate, viewAll = false, onViewAllClick, isEditable = true }: ProfileExperienceProps) {
   const [isAddingExperience, setIsAddingExperience] = useState(false)
   const [newExperience, setNewExperience] = useState<Experience>({
     company: "",
@@ -224,102 +225,7 @@ export function ProfileExperience({ experience, onUpdate, viewAll = false, onVie
             <Icons.briefcase className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             <CardTitle>Work Experience</CardTitle>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
-                size="sm"
-                aria-label="Add Experience"
-              >
-                <Icons.plus className="mr-1 h-4 w-4" />
-                Add Experience
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add Work Experience</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="company">Company/Organization</Label>
-                  <Input
-                    id="company"
-                    value={newExperience.company}
-                    onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
-                    placeholder="e.g., Google, Microsoft, Freelance"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="role">Job Title/Role</Label>
-                  <Input
-                    id="role"
-                    value={newExperience.role}
-                    onChange={(e) => setNewExperience({ ...newExperience, role: e.target.value })}
-                    placeholder="e.g., Software Engineer, UX Designer"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="duration">Duration</Label>
-                  <Input
-                    id="duration"
-                    value={newExperience.duration}
-                    onChange={(e) => setNewExperience({ ...newExperience, duration: e.target.value })}
-                    placeholder="e.g., Jan 2022 - Present, Jun 2021 - Dec 2021"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Key Responsibilities</Label>
-                  <ul className="space-y-2">
-                    {newExperience.responsibilities.map((responsibility, index) => (
-                      <li
-                        key={index}
-                        className="flex items-center justify-between rounded-md bg-violet-50 px-3 py-2 text-sm text-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
-                      >
-                        <span>{responsibility}</span>
-                        <button
-                          onClick={() => handleRemoveResponsibility(responsibility)}
-                          className="ml-2 rounded-full text-red-500 hover:text-red-700"
-                        >
-                          <Icons.x className="h-4 w-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex gap-2">
-                    <Input
-                      value={newResponsibility}
-                      onChange={(e) => setNewResponsibility(e.target.value)}
-                      placeholder="Add a key responsibility"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleAddResponsibility()
-                        }
-                      }}
-                    />
-                    <Button type="button" onClick={handleAddResponsibility} variant="outline">
-                      Add
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleAddExperience}>Add Experience</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <CardDescription>Share your professional work history</CardDescription>
-      </CardHeader>
-      <CardContent className="p-6">
-        {experience.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-violet-200 bg-violet-50/50 p-8 text-center dark:border-violet-800/30 dark:bg-violet-900/10">
-            <Icons.briefcase className="mb-2 h-10 w-10 text-violet-400 dark:text-violet-500" />
-            <h3 className="mb-1 text-lg font-medium text-violet-900 dark:text-white">No work experience yet</h3>
-            <p className="mb-4 text-sm text-violet-700 dark:text-violet-300">
-              Add your work history to showcase your professional experience
-            </p>
+          {isEditable && (
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -331,7 +237,104 @@ export function ProfileExperience({ experience, onUpdate, viewAll = false, onVie
                   Add Experience
                 </Button>
               </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add Work Experience</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="company">Company/Organization</Label>
+                    <Input
+                      id="company"
+                      value={newExperience.company}
+                      onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
+                      placeholder="e.g., Google, Microsoft, Freelance"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="role">Job Title/Role</Label>
+                    <Input
+                      id="role"
+                      value={newExperience.role}
+                      onChange={(e) => setNewExperience({ ...newExperience, role: e.target.value })}
+                      placeholder="e.g., Software Engineer, UX Designer"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="duration">Duration</Label>
+                    <Input
+                      id="duration"
+                      value={newExperience.duration}
+                      onChange={(e) => setNewExperience({ ...newExperience, duration: e.target.value })}
+                      placeholder="e.g., Jan 2022 - Present, Jun 2021 - Dec 2021"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Key Responsibilities</Label>
+                    <ul className="space-y-2">
+                      {newExperience.responsibilities.map((responsibility, index) => (
+                        <li
+                          key={index}
+                          className="flex items-center justify-between rounded-md bg-violet-50 px-3 py-2 text-sm text-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+                        >
+                          <span>{responsibility}</span>
+                          <button
+                            onClick={() => handleRemoveResponsibility(responsibility)}
+                            className="ml-2 rounded-full text-red-500 hover:text-red-700"
+                          >
+                            <Icons.x className="h-4 w-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newResponsibility}
+                        onChange={(e) => setNewResponsibility(e.target.value)}
+                        placeholder="Add a key responsibility"
+                        className="flex-1"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleAddResponsibility()
+                          }
+                        }}
+                      />
+                      <Button type="button" onClick={handleAddResponsibility} variant="outline">
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button onClick={handleAddExperience}>Add Experience</Button>
+                </div>
+              </DialogContent>
             </Dialog>
+          )}
+        </div>
+        <CardDescription>Share your professional work history</CardDescription>
+      </CardHeader>
+      <CardContent className="p-6">
+        {experience.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-violet-200 bg-violet-50/50 p-8 text-center dark:border-violet-800/30 dark:bg-violet-900/10">
+            <Icons.briefcase className="mb-2 h-10 w-10 text-violet-400 dark:text-violet-500" />
+            <h3 className="mb-1 text-lg font-medium text-violet-900 dark:text-white">No work experience yet</h3>
+            <p className="mb-4 text-sm text-violet-700 dark:text-violet-300">
+              Add your work history to showcase your professional experience
+            </p>
+            {/* <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
+                  size="sm"
+                  aria-label="Add Experience"
+                >
+                  <Icons.plus className="mr-1 h-4 w-4" />
+                  Add Experience
+                </Button>
+              </DialogTrigger>
+            </Dialog> */}
           </div>
         ) : viewAll ? (
           <div className="space-y-6">
@@ -511,7 +514,7 @@ export function ProfileExperience({ experience, onUpdate, viewAll = false, onVie
                 <p className="mb-4 text-sm text-violet-700 dark:text-violet-300">
                   Add your work history to showcase your professional experience
                 </p>
-                <Dialog>
+                {/* <Dialog>
                   <DialogTrigger asChild>
                     <Button
                       className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
@@ -522,7 +525,7 @@ export function ProfileExperience({ experience, onUpdate, viewAll = false, onVie
                       Add Experience
                     </Button>
                   </DialogTrigger>
-                </Dialog>
+                </Dialog> */}
               </div>
             )}
           </>

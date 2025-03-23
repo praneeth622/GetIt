@@ -127,6 +127,7 @@ export async function registerRecruiterUser(email: string, password: string, use
     const userDoc = doc(db, `users/recruiter/${user.uid}/user_details`)
     await setDoc(userDoc, {
       ...userData,
+      Verified: false,
       createdAt: new Date(),
       updatedAt: new Date()
     })
@@ -150,6 +151,7 @@ export async function registerStudentUser(email: string, password: string, userD
     await setDoc(userDoc, {
       ...userData,
       Role: "student", 
+      Verified: false,
       savedJobs: [],   
       appliedJobs: [],
       createdAt: new Date(),
@@ -175,7 +177,8 @@ export async function registerRecruiter(email: string, password: string, userDat
     const userDoc = doc(db, `users/recruiter/${user.uid}/user_details`)
     await setDoc(userDoc, {
       ...userData,
-      Role: "Recruiter", // Ensure consistent capitalization
+      Role: "Recruiter",
+      Verified: false,
       createdAt: new Date(),
       updatedAt: new Date()
     })
@@ -320,56 +323,46 @@ export function calculateMatchScore(data: any): number {
 // Function to get all students
 export async function getAllStudents() {
   try {
-    // First get all student user IDs
-    const studentsRef = collection(db, "users");
-    const studentsQuery = query(
-      studentsRef,
-      where("Role", "==", "student")
-    );
-    const querySnapshot = await getDocs(studentsQuery);
+    console.log("Fetching all students from the database");
+    const students: any[] = [];
     
-    console.log("Found student users:", querySnapshot.size);
+    // Get all documents from the "users" collection where the path indicates they're students
+    // First, get all user IDs from the users/student path
+    const studentCollectionRef = collection(db, "users", "student");
+    const studentCollectionSnapshot = await getDocs(studentCollectionRef);
     
-    if (querySnapshot.empty) {
-      console.log("No student users found in the database");
+    // If no student directory exists
+    if (studentCollectionSnapshot.empty) {
+      console.log("No student directory found in users collection");
       return [];
     }
     
-    // Then get the user details for each student
-    const students = await Promise.all(
-      querySnapshot.docs.map(async (userDoc) => {
-        try {
-          const userDetailsRef = doc(db, `users/student/${userDoc.id}/user_details`);
-          const userDetailsDoc = await getDoc(userDetailsRef);
-          
-          if (!userDetailsDoc.exists()) {
-            console.warn(`No user details found for student ${userDoc.id}`);
-            return null;
-          }
-          
-          const data = userDetailsDoc.data();
-          console.log(`Found user details for student ${userDoc.id}:`, data);
-          
-          return {
-            id: userDoc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate?.() || new Date(),
-            updatedAt: data.updatedAt?.toDate?.() || new Date()
-          };
-        } catch (error) {
-          console.error(`Error fetching details for student ${userDoc.id}:`, error);
-          return null;
-        }
-      })
-    );
+    // For each student ID, get their user_details document
+    for (const doc of studentCollectionSnapshot.docs) {
+      const studentId = doc.id;
+      const userDetailsRef = collection(db, "users", "student", studentId, "user_details");
+      const userDetailsSnapshot = await getDocs(userDetailsRef);
+      
+      if (!userDetailsSnapshot.empty) {
+        // There should only be one document here, but we'll loop just in case
+        userDetailsSnapshot.forEach(detailDoc => {
+          students.push({
+            id: studentId,
+            ...detailDoc.data()
+          });
+        });
+      }
+    }
     
-    // Filter out any null values from students that didn't have user details
-    const validStudents = students.filter((student): student is NonNullable<typeof student> => student !== null);
-    console.log("Total valid students found:", validStudents.length);
+    if (students.length === 0) {
+      console.log("No students found in the database");
+    } else {
+      console.log(`Found ${students.length} students`);
+    }
     
-    return validStudents;
+    return students;
   } catch (error) {
-    console.error("Error fetching students:", error);
+    console.error("Error getting students:", error);
     throw new Error("Failed to fetch students");
   }
 }
@@ -533,24 +526,64 @@ export async function getAllJobs(lastVisible: string | null = null, limit: numbe
   }
 }
 
-// Update the findOrCreateStudentDocument function to include the users path
-async function findOrCreateStudentDocument(studentId: string) {
-  // Try all possible paths where student data might be, ensuring they have even segments
-  const possiblePaths = [
-    doc(db, "users", studentId), // Simple path in users collection - THIS SHOULD BE FIRST
-    doc(db, "students", studentId), // In case there's a dedicated students collection
-    doc(db, "users", "student", studentId, "user_details"), // Nested path with user_details subcollection
-    doc(db, "student_profiles", studentId) // Alternative location
+// Update the findOrCreateStudentDocument function to prioritize the users/student/{id}/user_details path
+export async function findOrCreateStudentDocument(studentId: string) {
+  // Primary path that should be used first
+  const primaryPath = doc(db, "users", "student", studentId, "user_details");
+  
+  // Check the primary path first
+  console.log(`Checking primary path for student ID: ${studentId} at ${primaryPath.path}`);
+  
+  try {
+    const docSnapshot = await getDoc(primaryPath);
+    
+    if (docSnapshot.exists()) {
+      console.log(`Found existing student document at ${primaryPath.path}`);
+      
+      // If document exists but doesn't have verified field, add it
+      const data = docSnapshot.data();
+      if (data && typeof data.verified === 'undefined') {
+        console.log("Document exists but doesn't have verified field, adding it as false");
+        await updateDoc(primaryPath, {
+          verified: false,
+          updatedAt: new Date()
+        });
+        
+        // Return the updated data
+        return {
+          ref: primaryPath,
+          isNew: false,
+          data: {
+            ...data,
+            verified: false
+          }
+        };
+      }
+      
+      return {
+        ref: primaryPath,
+        isNew: false,
+        data: data
+      };
+    }
+  } catch (error) {
+    console.warn(`Error checking primary path ${primaryPath.path}:`, error);
+    // Continue to fallback paths
+  }
+  
+  // Try fallback paths if primary path doesn't exist
+  const fallbackPaths = [
+    doc(db, "users", studentId), 
+    doc(db, "students", studentId)
   ];
   
-  // Check all paths
-  console.log(`Checking ${possiblePaths.length} possible paths for student ID: ${studentId}`);
+  // Check fallback paths
   let existingDoc = null;
   let existingPath = null;
   
-  for (let i = 0; i < possiblePaths.length; i++) {
-    const pathRef = possiblePaths[i];
-    console.log(`Checking path ${i+1}: ${pathRef.path}`);
+  for (let i = 0; i < fallbackPaths.length; i++) {
+    const pathRef = fallbackPaths[i];
+    console.log(`Checking fallback path ${i+1}: ${pathRef.path}`);
     
     try {
       const docSnapshot = await getDoc(pathRef);
@@ -559,6 +592,27 @@ async function findOrCreateStudentDocument(studentId: string) {
         console.log(`Found existing student document at ${pathRef.path}`);
         existingDoc = docSnapshot;
         existingPath = pathRef;
+        
+        // If document exists but doesn't have verified field, add it
+        const data = docSnapshot.data();
+        if (data && typeof data.verified === 'undefined') {
+          console.log("Document exists but doesn't have verified field, adding it as false");
+          await updateDoc(pathRef, {
+            verified: false,
+            updatedAt: new Date()
+          });
+          
+          // Return the updated data
+          return {
+            ref: pathRef,
+            isNew: false,
+            data: {
+              ...data,
+              verified: false
+            }
+          };
+        }
+        
         break;
       }
     } catch (error) {
@@ -568,54 +622,33 @@ async function findOrCreateStudentDocument(studentId: string) {
   }
   
   if (!existingDoc) {
-    // Create a new document at users collection (simplest approach)
-    console.log(`No existing document found. Creating new student document at users/student/${studentId}`);
-    const newDocPath = doc(db, "users", studentId);
+    // Create a new document at the primary path with verified: false
+    console.log(`No existing document found. Creating new student document at ${primaryPath.path}`);
     
     try {
-      // Create a minimal student record
-      await setDoc(newDocPath, {
+      // Create a minimal student record with verified: false
+      await setDoc(primaryPath, {
         fullName: "",
         email: "",
-        Role: "student",
         savedJobs: [],
         appliedJobs: [],
+        verified: false, // Explicitly set to false for new users
         createdAt: new Date(),
         updatedAt: new Date()
-      }, { merge: true });
+      });
       
       return {
-        ref: newDocPath,
+        ref: primaryPath,
         isNew: true,
         data: {
           savedJobs: [],
           appliedJobs: [],
-          Role: "student"
+          verified: false
         }
       };
     } catch (error) {
       console.error("Error creating new student document:", error);
-      // Try an alternative path as fallback
-      const fallbackPath = doc(db, "students", studentId);
-      await setDoc(fallbackPath, {
-        fullName: "",
-        email: "",
-        Role: "student",
-        savedJobs: [],
-        appliedJobs: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }, { merge: true });
-      
-      return {
-        ref: fallbackPath,
-        isNew: true,
-        data: {
-          savedJobs: [],
-          appliedJobs: [],
-          Role: "student"
-        }
-      };
+      throw new Error("Failed to create student document");
     }
   }
   
@@ -980,32 +1013,40 @@ export async function updateApplicationStatus(
   }
 }
 
-// Function to get user profile data
+// Update the getUserProfile function in firebase-service.ts
 export async function getUserProfile(userId: string) {
   try {
-    const userDoc = await findOrCreateStudentDocument(userId);
-    
-    if (userDoc.isNew) {
-      // This is a new user, return default profile structure
-      return {
-        fullName: "",
-        email: "",
-        title: "",
-        university: "",
-        about: "",
-        skills: [],
-        projects: [],
-        experience: [],
-        connections: { followers: 0, following: 0 },
-        achievements: [],
-        socialLinks: {},
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+    // Handle undefined userId case
+    if (!userId) {
+      throw new Error("User ID is undefined");
     }
     
-    // Return the existing user data with defaults for missing fields
+    console.log(`Fetching user profile for ID: ${userId}`);
+    
+    // First try to get the user document
+    const userDoc = await findOrCreateStudentDocument(userId);
+    
+    if (!userDoc || !userDoc.data) {
+      console.error("Failed to find or create student document");
+      throw new Error("Failed to load profile data");
+    }
+    
+    // If verified is undefined, update it to false
+    if (typeof userDoc.data.verified === 'undefined') {
+      console.log("Profile doesn't have verified status, setting to false");
+      await updateDoc(userDoc.ref, {
+        verified: false,
+        updatedAt: new Date()
+      });
+      
+      // Update the local data object
+      userDoc.data.verified = false;
+    }
+    
+    // Return the profile data
+    console.log(`Successfully fetched profile for ${userId}, verified status:`, userDoc.data.verified);
     return {
+      id: userId,
       fullName: userDoc.data.fullName || "",
       email: userDoc.data.email || "",
       title: userDoc.data.title || "",
@@ -1016,33 +1057,74 @@ export async function getUserProfile(userId: string) {
       experience: userDoc.data.experience || [],
       connections: userDoc.data.connections || { followers: 0, following: 0 },
       achievements: userDoc.data.achievements || [],
+      growthSuggestions: userDoc.data.growthSuggestions || [],
+      collaborationProjects: userDoc.data.collaborationProjects || [],
+      reviews: userDoc.data.reviews || [],
+      activity: userDoc.data.activity || [],
+      analytics: userDoc.data.analytics || { 
+        profileViews: 0, 
+        jobApplications: 0, 
+        projectInquiries: 0, 
+        endorsementsReceived: 0 
+      },
       socialLinks: userDoc.data.socialLinks || {},
       avatar: userDoc.data.avatar || "/placeholder.svg?height=200&width=200",
       coverImage: userDoc.data.coverImage || "/placeholder.svg?height=400&width=1200",
+      verified: userDoc.data.verified === true, // Ensure it's a boolean
+      phoneNumber: userDoc.data.phoneNumber || "",
+      address: userDoc.data.address || "",
+      pincode: userDoc.data.pincode || "",
       createdAt: userDoc.data.createdAt instanceof Date ? userDoc.data.createdAt : new Date(),
       updatedAt: userDoc.data.updatedAt instanceof Date ? userDoc.data.updatedAt : new Date()
     };
   } catch (error) {
-    console.error("Error fetching user profile:", error);
-    throw new Error("Failed to fetch user profile");
+    console.error("Error in getUserProfile:", error);
+    throw error;
   }
 }
 
 // Function to update specific sections of the user profile
 export async function updateUserProfile(userId: string, section: string, data: any) {
   try {
+    if (!userId) {
+      throw new Error("User ID is undefined");
+    }
+
+    console.log(`Updating profile for ${userId}, section: ${section || "multiple fields"}`, data);
+
     const userDoc = await findOrCreateStudentDocument(userId);
     
-    // Update only the specific section
-    await updateDoc(userDoc.ref, {
-      [section]: data,
-      updatedAt: new Date()
-    });
+    if (!userDoc || !userDoc.ref) {
+      throw new Error("Failed to find or create user document");
+    }
     
+    // Prepare the update data - normalize to account for nested properties
+    const updateData: any = {};
+    
+    if (!section) {
+      // Simple field updates
+      Object.keys(data).forEach(key => {
+        updateData[key] = data[key];
+      });
+    } else if (section === "socialLinks") {
+      // Handle socialLinks as a special case for merging
+      updateData["socialLinks"] = data;
+    } else {
+      // Update a specific section
+      updateData[section] = data;
+    }
+    
+    // Always update the timestamp
+    updateData.updatedAt = new Date();
+    
+    // Perform the update
+    await updateDoc(userDoc.ref, updateData);
+    
+    console.log(`Successfully updated ${section || "multiple fields"} for user ${userId}`);
     return { success: true };
   } catch (error) {
     console.error(`Error updating user profile section ${section}:`, error);
-    throw new Error("Failed to update profile");
+    throw new Error(`Failed to update ${section || "profile"}`);
   }
 }
 

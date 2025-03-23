@@ -141,7 +141,7 @@ export default function SignupOptionsPage() {
               </svg>
             </div>
           </motion.div>
-          <span className="hidden md:inline-block">SkillHub</span>
+          <span className="hidden md:inline-block">GetIT</span>
         </Link>
 
         <motion.div className="w-full max-w-4xl" initial="hidden" animate="visible" variants={containerVariants}>
@@ -161,7 +161,7 @@ export default function SignupOptionsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
             >
-              Join SkillHub
+              Join GetIT
             </motion.h1>
             <motion.p
               className="text-sm text-zinc-500 dark:text-zinc-400"
@@ -169,7 +169,7 @@ export default function SignupOptionsPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              Choose how you want to use SkillHub
+              Choose how you want to use GetIT
             </motion.p>
           </motion.div>
 

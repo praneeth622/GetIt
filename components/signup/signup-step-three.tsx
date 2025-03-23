@@ -140,7 +140,7 @@ export function SignupStepThree({ formData, updateFormData, nextStep, prevStep, 
             Areas of Interest
             <span className="text-destructive"> *</span>
           </Label>
-          <p className="text-sm text-muted-foreground mb-3">What are you looking for on SkillHub?</p>
+          <p className="text-sm text-muted-foreground mb-3">What are you looking for on GetIT?</p>
 
           <div className="grid grid-cols-2 gap-3">
             {interestOptions.map((interest) => (

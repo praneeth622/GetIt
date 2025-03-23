@@ -31,7 +31,7 @@ export function PremiumFooter() {
                     </svg>
                   </div>
                 </div>
-                <span>SkillHub</span>
+                <span>GetIT</span>
               </Link>
               <p className="text-sm text-violet-700 dark:text-violet-300">
                 Connecting talented students with opportunities that matter. Build your portfolio, earn money, and gain
@@ -191,7 +191,7 @@ export function PremiumFooter() {
           </div>
 
           <div className="mt-12 border-t border-violet-100 pt-8 text-center text-sm text-violet-700 dark:border-violet-800/30 dark:text-violet-400">
-            <p>© {currentYear} SkillHub. All rights reserved.</p>
+            <p>© {currentYear} GetIT. All rights reserved.</p>
           </div>
         </div>
       </div>

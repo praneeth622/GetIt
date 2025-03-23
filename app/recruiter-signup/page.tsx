@@ -205,7 +205,7 @@ export default function RecruiterSignupPage() {
               </svg>
             </div>
           </motion.div>
-          <span className="hidden md:inline-block">SkillHub</span>
+          <span className="hidden md:inline-block">GetIT</span>
         </Link>
 
         {/* Don't render anything until mounted to prevent hydration mismatch */}
@@ -246,7 +246,7 @@ export default function RecruiterSignupPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
                   >
-                    {step === 6 ? "Welcome to SkillHub!" : "Create Recruiter Account"}
+                    {step === 6 ? "Welcome to GetIT!" : "Create Recruiter Account"}
                   </motion.h1>
                   <motion.p
                     className="text-sm text-zinc-500 dark:text-zinc-400"

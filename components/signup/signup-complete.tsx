@@ -40,7 +40,7 @@ export function SignupComplete() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          Your account has been created successfully. You're now ready to start your journey on SkillHub.
+          Your account has been created successfully. You're now ready to start your journey on GetIT.
         </motion.p>
       </div>
 

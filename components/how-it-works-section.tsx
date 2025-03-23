@@ -42,7 +42,7 @@ export function HowItWorksSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">How SkillHub Works</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">How GetIT Works</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Getting started is easy. Follow these simple steps to begin your freelancing journey while still in college.
           </p>

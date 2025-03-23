@@ -53,7 +53,7 @@ export function FeaturesSection() {
         >
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">Everything You Need to Succeed</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            SkillHub provides all the tools and resources you need to showcase your talents, find opportunities, and
+            GetIT provides all the tools and resources you need to showcase your talents, find opportunities, and
             build your professional career.
           </p>
         </motion.div>

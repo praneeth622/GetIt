@@ -32,9 +32,10 @@ interface ProfileProjectsProps {
   onUpdate: (projects: Project[]) => void
   viewAll?: boolean
   onViewAllClick?: () => void
+  isEditable?: boolean
 }
 
-export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAllClick }: ProfileProjectsProps) {
+export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAllClick, isEditable = true }: ProfileProjectsProps) {
   const [isAddingProject, setIsAddingProject] = useState(false)
   const [newProject, setNewProject] = useState<Project>({
     title: "",
@@ -259,132 +260,134 @@ export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAll
             <Icons.briefcase className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             <CardTitle>Projects</CardTitle>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
-                size="sm"
-                aria-label="Add Project"
-              >
-                <Icons.plus className="mr-1 h-4 w-4" />
-                Add Project
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add New Project</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="projectTitle">Project Title</Label>
-                  <Input
-                    id="projectTitle"
-                    value={newProject.title}
-                    onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                    placeholder="e.g., E-commerce Platform, AI Assistant"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="projectDescription">Description</Label>
-                  <Textarea
-                    id="projectDescription"
-                    value={newProject.description}
-                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    placeholder="Describe your project, its purpose, and key features..."
-                    className="min-h-[100px]"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Technologies Used</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {newProject.technologies.map((tech) => (
-                      <Badge
-                        key={tech}
-                        className="flex items-center gap-1 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
-                      >
-                        {tech}
-                        <button
-                          onClick={() => handleRemoveTechnology(tech)}
-                          className="ml-1 rounded-full hover:text-red-500"
+          {isEditable && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
+                  size="sm"
+                  aria-label="Add Project"
+                >
+                  <Icons.plus className="mr-1 h-4 w-4" />
+                  Add Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Project</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="projectTitle">Project Title</Label>
+                    <Input
+                      id="projectTitle"
+                      value={newProject.title}
+                      onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
+                      placeholder="e.g., E-commerce Platform, AI Assistant"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="projectDescription">Description</Label>
+                    <Textarea
+                      id="projectDescription"
+                      value={newProject.description}
+                      onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                      placeholder="Describe your project, its purpose, and key features..."
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Technologies Used</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {newProject.technologies.map((tech) => (
+                        <Badge
+                          key={tech}
+                          className="flex items-center gap-1 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
                         >
-                          <Icons.x className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
+                          {tech}
+                          <button
+                            onClick={() => handleRemoveTechnology(tech)}
+                            className="ml-1 rounded-full hover:text-red-500"
+                          >
+                            <Icons.x className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newTechnology}
+                        onChange={(e) => setNewTechnology(e.target.value)}
+                        placeholder="e.g., React, Node.js, Python"
+                        className="flex-1"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleAddTechnology()
+                          }
+                        }}
+                      />
+                      <Button type="button" onClick={handleAddTechnology} variant="outline">
+                        Add
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="projectRole">Your Role</Label>
                     <Input
-                      value={newTechnology}
-                      onChange={(e) => setNewTechnology(e.target.value)}
-                      placeholder="e.g., React, Node.js, Python"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleAddTechnology()
+                      id="projectRole"
+                      value={newProject.role}
+                      onChange={(e) => setNewProject({ ...newProject, role: e.target.value })}
+                      placeholder="e.g., Lead Developer, UI Designer"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="projectContributions">Your Contributions</Label>
+                    <Textarea
+                      id="projectContributions"
+                      value={newProject.contributions}
+                      onChange={(e) => setNewProject({ ...newProject, contributions: e.target.value })}
+                      placeholder="Describe your specific contributions to the project..."
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="githubLink">GitHub Link</Label>
+                      <Input
+                        id="githubLink"
+                        value={newProject.links.github || ""}
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            links: { ...newProject.links, github: e.target.value },
+                          })
                         }
-                      }}
-                    />
-                    <Button type="button" onClick={handleAddTechnology} variant="outline">
-                      Add
-                    </Button>
+                        placeholder="https://github.com/username/repo"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="demoLink">Demo Link</Label>
+                      <Input
+                        id="demoLink"
+                        value={newProject.links.demo || ""}
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            links: { ...newProject.links, demo: e.target.value },
+                          })
+                        }
+                        placeholder="https://demo-site.com"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="projectRole">Your Role</Label>
-                  <Input
-                    id="projectRole"
-                    value={newProject.role}
-                    onChange={(e) => setNewProject({ ...newProject, role: e.target.value })}
-                    placeholder="e.g., Lead Developer, UI Designer"
-                  />
+                <div className="flex justify-end">
+                  <Button onClick={handleAddProject}>Add Project</Button>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="projectContributions">Your Contributions</Label>
-                  <Textarea
-                    id="projectContributions"
-                    value={newProject.contributions}
-                    onChange={(e) => setNewProject({ ...newProject, contributions: e.target.value })}
-                    placeholder="Describe your specific contributions to the project..."
-                    className="min-h-[100px]"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="githubLink">GitHub Link</Label>
-                    <Input
-                      id="githubLink"
-                      value={newProject.links.github || ""}
-                      onChange={(e) =>
-                        setNewProject({
-                          ...newProject,
-                          links: { ...newProject.links, github: e.target.value },
-                        })
-                      }
-                      placeholder="https://github.com/username/repo"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="demoLink">Demo Link</Label>
-                    <Input
-                      id="demoLink"
-                      value={newProject.links.demo || ""}
-                      onChange={(e) =>
-                        setNewProject({
-                          ...newProject,
-                          links: { ...newProject.links, demo: e.target.value },
-                        })
-                      }
-                      placeholder="https://demo-site.com"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleAddProject}>Add Project</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <CardDescription>Showcase your work and accomplishments</CardDescription>
       </CardHeader>
@@ -396,7 +399,7 @@ export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAll
             <p className="mb-4 text-sm text-violet-700 dark:text-violet-300">
               Showcase your work by adding your first project
             </p>
-            <Dialog>
+            {/* <Dialog>
               <DialogTrigger asChild>
                 <Button
                   className="bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700"
@@ -406,7 +409,7 @@ export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAll
                   Add Project
                 </Button>
               </DialogTrigger>
-            </Dialog>
+            </Dialog> */}
           </div>
         ) : viewAll ? (
           <div className="grid gap-6 md:grid-cols-2">

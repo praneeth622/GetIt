@@ -137,7 +137,7 @@ export default function LoginPage() {
               </svg>
             </div>
           </motion.div>
-          <span className="hidden md:inline-block">SkillHub</span>
+          <span className="hidden md:inline-block">GetIT</span>
         </Link>
 
         <motion.div

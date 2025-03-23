@@ -79,7 +79,7 @@ export function PremiumProcess() {
           transition={{ duration: 0.5 }}
         >
           <h2 className="mb-4 bg-gradient-to-r from-violet-900 to-violet-700 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl dark:from-white dark:to-violet-300">
-            How SkillHub Works
+            How GetIT Works
           </h2>
           <p className="text-lg text-violet-800 dark:text-violet-300">
             Getting started is easy. Follow these simple steps to begin your freelancing journey while still in college.

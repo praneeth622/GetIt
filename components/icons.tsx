@@ -327,6 +327,12 @@ export const Icons = {
   message: MessageSquare,
   thumbsUp: ThumbsUp,
   layout: Layout,
+  image: Image,
+  camera: Camera,
+  school: GraduationCap,
+  alertTriangle: AlertTriangle,
+  video: Video,
+  music: Music, 
   thumbsUp: ThumbsUp,
 }
 

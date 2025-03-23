@@ -192,7 +192,7 @@ export default function SignupPage() {
               </svg>
             </div>
           </motion.div>
-          <span className="hidden md:inline-block">SkillHub</span>
+          <span className="hidden md:inline-block">GetIT</span>
         </Link>
 
         <motion.div
@@ -231,7 +231,7 @@ export default function SignupPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
                 >
-                  {step === 6 ? "Welcome to SkillHub!" : "Create your account"}
+                  {step === 6 ? "Welcome to GetIT!" : "Create your account"}
                 </motion.h1>
                 <motion.p
                   className="text-sm text-zinc-500 dark:text-zinc-400"

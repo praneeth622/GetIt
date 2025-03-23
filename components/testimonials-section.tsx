@@ -9,7 +9,7 @@ export function TestimonialsSection() {
   const testimonials = [
     {
       quote:
-        "SkillHub helped me land my first paid web development gig while still in my sophomore year. The experience I gained was invaluable for my resume.",
+        "GetIT helped me land my first paid web development gig while still in my sophomore year. The experience I gained was invaluable for my resume.",
       name: "David Chen",
       role: "Computer Science Student",
       university: "Stanford University",
@@ -17,7 +17,7 @@ export function TestimonialsSection() {
     },
     {
       quote:
-        "As a design student, I was looking for real-world projects to build my portfolio. Through SkillHub, I've worked with three startups and even secured an internship!",
+        "As a design student, I was looking for real-world projects to build my portfolio. Through GetIT, I've worked with three startups and even secured an internship!",
       name: "Sophia Martinez",
       role: "Graphic Design Student",
       university: "Rhode Island School of Design",
@@ -25,7 +25,7 @@ export function TestimonialsSection() {
     },
     {
       quote:
-        "The AI-powered matching on SkillHub is spot-on! It connected me with projects that perfectly matched my marketing skills, and I've been able to earn while learning.",
+        "The AI-powered matching on GetIT is spot-on! It connected me with projects that perfectly matched my marketing skills, and I've been able to earn while learning.",
       name: "James Wilson",
       role: "Marketing Student",
       university: "NYU Stern",
@@ -33,7 +33,7 @@ export function TestimonialsSection() {
     },
     {
       quote:
-        "As a startup founder, finding talented students for project-based work has been a game-changer. The quality of work and enthusiasm from SkillHub students is impressive.",
+        "As a startup founder, finding talented students for project-based work has been a game-changer. The quality of work and enthusiasm from GetIT students is impressive.",
       name: "Emily Johnson",
       role: "Startup Founder",
       university: "TechNova",
@@ -41,7 +41,7 @@ export function TestimonialsSection() {
     },
     {
       quote:
-        "I've been able to pay for my textbooks and expenses through freelance writing gigs on SkillHub. The platform is intuitive and the payment system is reliable.",
+        "I've been able to pay for my textbooks and expenses through freelance writing gigs on GetIT. The platform is intuitive and the payment system is reliable.",
       name: "Michael Brown",
       role: "English Literature Student",
       university: "Columbia University",

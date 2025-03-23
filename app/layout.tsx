@@ -8,7 +8,7 @@ import { Toaster } from "sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "SkillHub - Connect Students with Opportunities",
+  title: "GetIT - Connect Students with Opportunities",
   description: "A premium marketplace for college students to showcase skills and find paid gigs",
     generator: 'skill-hub.dev'
 }
@@ -26,7 +26,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange={false}
-          storageKey="skillhub-theme"
+          storageKey="GetIT-theme"
         >
           {children}
         </ThemeProvider>
@@ -36,7 +36,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  const storageKey = "skillhub-theme";
+                  const storageKey = "GetIT-theme";
                   const theme = localStorage.getItem(storageKey) || "system";
                   
                   if (theme === "system") {

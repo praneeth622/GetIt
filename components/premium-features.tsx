@@ -95,7 +95,7 @@ export function PremiumFeatures() {
             Everything You Need to Succeed
           </h2>
           <p className="text-lg text-violet-800 dark:text-violet-300">
-            SkillHub provides all the tools and resources you need to showcase your talents, find opportunities, and
+            GetIT provides all the tools and resources you need to showcase your talents, find opportunities, and
             build your professional career.
           </p>
         </motion.div>

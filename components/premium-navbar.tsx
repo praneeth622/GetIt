@@ -191,7 +191,7 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
                 </svg>
               </div>
             </motion.div>
-            <span>SkillHub</span>
+            <span>GetIT</span>
           </Link>
         </motion.div>
 
