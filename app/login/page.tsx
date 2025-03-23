@@ -43,7 +43,7 @@ export default function LoginPage() {
       const result = await signInWithEmailAndPassword(auth, formData.email, formData.password)
       if (result.user) {
         toast.success("Successfully logged in!")
-        router.push("/explore/")
+        router.push("/profile")
       }
     } catch (error: any) {
       let message = "Failed to login"

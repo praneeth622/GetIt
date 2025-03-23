@@ -118,17 +118,12 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/dashboard" className="flex cursor-pointer items-center">
+                <Link href={recruiterId ? "/explore/recruiter/jobs" : "/explore/students"} className="flex cursor-pointer items-center">
                 <Icons.layout className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
-              </Link>
+                <span>Explore</span>
+                </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/settings" className="flex cursor-pointer items-center">
-                <Icons.settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
+           
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleLogout}
@@ -304,6 +299,18 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
                   <Link href="/settings" className="flex cursor-pointer items-center">
                     <Icons.settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/agreement" className="flex cursor-pointer items-center">
+                    <Icons.settings className="mr-2 h-4 w-4" />
+                    <span>Agreement</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/ai" className="flex cursor-pointer items-center">
+                    <Icons.settings className="mr-2 h-4 w-4" />
+                    <span>AI Assistant</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

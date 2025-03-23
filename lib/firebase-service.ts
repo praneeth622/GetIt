@@ -1228,3 +1228,158 @@ export async function getUserDetails(userId: string | undefined) {
   }
 }
 
+// Function to get recruiter profile data
+export async function getRecruiterProfile(recruiterId: string) {
+  try {
+    if (!recruiterId) {
+      throw new Error("Recruiter ID is undefined");
+    }
+    
+    console.log(`Fetching recruiter profile for ID: ${recruiterId}`);
+    
+    // Path to the recruiter's profile data
+    const recruiterDocRef = doc(db, "users", "recruiter", recruiterId, "user_details");
+    const docSnapshot = await getDoc(recruiterDocRef);
+    
+    if (!docSnapshot.exists()) {
+      console.error(`Recruiter document not found for ID: ${recruiterId}`);
+      throw new Error("Recruiter profile not found");
+    }
+    
+    const recruiterData = docSnapshot.data();
+    
+    // Return the profile data with proper defaults
+    const result = {
+      id: recruiterId,
+      fullName: recruiterData.fullName || "",
+      email: recruiterData.email || "",
+      jobTitle: recruiterData.jobTitle || "",
+      phoneNumber: recruiterData.phoneNumber || "",
+      linkedinProfile: recruiterData.linkedinProfile || "",
+      companyName: recruiterData.companyName || "",
+      companyWebsite: recruiterData.companyWebsite || "",
+      industry: recruiterData.industry || "",
+      companySize: recruiterData.companySize || "",
+      companyDescription: recruiterData.companyDescription || "",
+      companyLocation: recruiterData.companyLocation || "",
+      hiringRoles: recruiterData.hiringRoles || [],
+      skillsNeeded: recruiterData.skillsNeeded || [],
+      hiringTimeline: recruiterData.hiringTimeline || "",
+      employmentTypes: recruiterData.employmentTypes || [],
+      remoteOptions: recruiterData.remoteOptions || [],
+      companyValues: recruiterData.companyValues || [],
+      benefits: recruiterData.benefits || [],
+      workEnvironment: recruiterData.workEnvironment || "",
+      teamStructure: recruiterData.teamStructure || "",
+      marketingConsent: recruiterData.marketingConsent || false,
+      termsAgreed: recruiterData.termsAgreed || false,
+      howHeard: recruiterData.howHeard || "",
+      joinDate: recruiterData.createdAt ? recruiterData.createdAt.toDate().toISOString() : new Date().toISOString(),
+      lastActive: recruiterData.updatedAt ? recruiterData.updatedAt.toDate().toISOString() : new Date().toISOString(),
+      profileViews: recruiterData.profileViews || 0,
+      candidatesPlaced: recruiterData.candidatesPlaced || 0,
+      activeJobs: recruiterData.activeJobs || 0,
+      savedCandidates: recruiterData.savedCandidates || 0,
+      averageResponseTime: recruiterData.averageResponseTime || "24 hours",
+      profileCompleteness: recruiterData.profileCompleteness || calculateProfileCompleteness(recruiterData),
+      verified: recruiterData.verified === true,
+      specializations: recruiterData.specializations || [],
+      preferredCommunication: recruiterData.preferredCommunication || "email",
+      testimonials: recruiterData.testimonials || [],
+      createdAt: recruiterData.createdAt instanceof Date ? recruiterData.createdAt : new Date(),
+      updatedAt: recruiterData.updatedAt instanceof Date ? recruiterData.updatedAt : new Date()
+    };
+    
+    console.log(`Successfully fetched recruiter profile for ${recruiterId}`);
+    return result;
+  } catch (error) {
+    console.error("Error in getRecruiterProfile:", error);
+    throw error;
+  }
+}
+
+// Function to calculate profile completeness percentage
+function calculateProfileCompleteness(recruiterData: any): number {
+  const requiredFields = [
+    'fullName', 'email', 'jobTitle', 'companyName', 'industry', 
+    'companySize', 'companyLocation', 'hiringRoles'
+  ];
+  
+  const optionalFields = [
+    'phoneNumber', 'linkedinProfile', 'companyWebsite', 'companyDescription',
+    'skillsNeeded', 'hiringTimeline', 'employmentTypes', 'remoteOptions',
+    'companyValues', 'benefits', 'workEnvironment', 'teamStructure'
+  ];
+  
+  let completedRequired = 0;
+  requiredFields.forEach(field => {
+    if (recruiterData[field] && 
+        (typeof recruiterData[field] !== 'string' || recruiterData[field].trim() !== '') &&
+        (!Array.isArray(recruiterData[field]) || recruiterData[field].length > 0)) {
+      completedRequired++;
+    }
+  });
+  
+  let completedOptional = 0;
+  optionalFields.forEach(field => {
+    if (recruiterData[field] && 
+        (typeof recruiterData[field] !== 'string' || recruiterData[field].trim() !== '') &&
+        (!Array.isArray(recruiterData[field]) || recruiterData[field].length > 0)) {
+      completedOptional++;
+    }
+  });
+  
+  const requiredWeight = 0.7;
+  const optionalWeight = 0.3;
+  
+  const requiredPercentage = (completedRequired / requiredFields.length) * requiredWeight * 100;
+  const optionalPercentage = (completedOptional / optionalFields.length) * optionalWeight * 100;
+  
+  return Math.round(requiredPercentage + optionalPercentage);
+}
+
+// Function to update recruiter profile
+export async function updateRecruiterProfile(recruiterId: string, section: string, data: any) {
+  try {
+    if (!recruiterId) {
+      throw new Error("Recruiter ID is undefined");
+    }
+
+    console.log(`Updating recruiter profile for ${recruiterId}, section: ${section || "multiple fields"}`);
+    
+    // Path to the recruiter's profile
+    const recruiterDocRef = doc(db, "users", "recruiter", recruiterId, "user_details");
+    
+    // Check if document exists
+    const docSnapshot = await getDoc(recruiterDocRef);
+    
+    if (!docSnapshot.exists()) {
+      console.error(`Recruiter document not found for ID: ${recruiterId}`);
+      throw new Error("Recruiter profile not found");
+    }
+    
+    // Prepare the update data
+    let updateData: any = {};
+    
+    if (!section) {
+      // Update multiple fields directly
+      updateData = { ...data };
+    } else {
+      // Update a specific section
+      updateData[section] = data;
+    }
+    
+    // Always update the timestamp
+    updateData.updatedAt = new Date();
+    
+    // Perform the update
+    await updateDoc(recruiterDocRef, updateData);
+    
+    console.log(`Successfully updated ${section || "multiple fields"} for recruiter ${recruiterId}`);
+    return { success: true };
+  } catch (error) {
+    console.error(`Error updating recruiter profile section ${section}:`, error);
+    throw new Error(`Failed to update ${section || "profile"}`);
+  }
+}
+

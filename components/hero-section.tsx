@@ -25,7 +25,7 @@ export function HeroSection() {
                 transition={{ delay: 0.2 }}
               >
                 <Icons.sparkles className="mr-1 h-3.5 w-3.5" />
-                <span>Launching for Fall Semester 2023</span>
+                <span>Launching for Fall Semester 2025</span>
               </motion.div>
               <motion.h1
                 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"

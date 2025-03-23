@@ -87,7 +87,7 @@ export function PremiumHero() {
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
               />
               <span className="text-sm font-medium text-violet-800 dark:text-violet-300">
-                Launching for Fall Semester 2023
+                Launching for Fall Semester 2025
               </span>
             </div>
           </motion.div>
