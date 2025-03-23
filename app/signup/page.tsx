@@ -73,7 +73,7 @@ export default function SignupPage() {
 
       if (success) {
         toast.success("Registration successful!")
-        router.push("/dashboard")
+        router.push("/profile")
       }
     } catch (error: any) {
       toast.error(error.message)

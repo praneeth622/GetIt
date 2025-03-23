@@ -89,7 +89,7 @@ export function SignupComplete() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Link href="/dashboard">
+          <Link href="/profile">
             <Button className="w-full bg-gradient-to-r from-violet-600 to-amber-600 text-white hover:from-violet-700 hover:to-amber-700">
               Go to Dashboard
               <Icons.arrowRight className="ml-2 h-4 w-4" />
