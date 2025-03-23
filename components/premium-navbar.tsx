@@ -160,7 +160,7 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
         <Link href="/login">
           <Button variant="outline">Log In</Button>
         </Link>
-        <Link href="/signup">
+        <Link href="/signup-options">
           <Button>Sign Up</Button>
         </Link>
       </>

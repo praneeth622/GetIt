@@ -51,7 +51,7 @@ export function HeroSection() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <Link href="/signup">
+              <Link href="/signup-options">
                 <Button size="lg" className="h-12 px-8">
                   Get Started
                   <Icons.arrowRight className="ml-2 h-4 w-4" />
