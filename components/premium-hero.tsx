@@ -220,12 +220,21 @@ export function PremiumHero() {
             transition={{ duration: 0.3 }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 via-transparent to-amber-600/5 dark:from-violet-600/10 dark:via-transparent dark:to-amber-600/10"></div>
-            <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-30"></div>
+            <div className="absolute inset-0">
+              <img 
+                src="/demo.gif" 
+                alt="GetIt platform demo" 
+                className="h-full w-full object-cover"
+              />
+            </div>
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
                 className="rounded-full bg-white/80 p-4 shadow-lg backdrop-blur-sm dark:bg-black/50"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-violet-600 to-amber-600 p-[1px] shadow-lg shadow-violet-600/20 dark:shadow-violet-600/10">
                   <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-black">
