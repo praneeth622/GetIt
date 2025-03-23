@@ -35,7 +35,10 @@ interface ProfileProjectsProps {
   isEditable?: boolean
 }
 
-export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAllClick, isEditable = true }: ProfileProjectsProps) {
+export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAllClick, isEditable = false }: ProfileProjectsProps) {
+  // Ensure projects is always an array
+  const projectsArray = Array.isArray(projects) ? projects : [];
+
   const [isAddingProject, setIsAddingProject] = useState(false)
   const [newProject, setNewProject] = useState<Project>({
     title: "",
@@ -55,7 +58,8 @@ export function ProfileProjects({ projects, onUpdate, viewAll = false, onViewAll
   const [currentIndex, setCurrentIndex] = useState(0)
   const projectsEndRef = useRef<HTMLDivElement>(null)
 
-  const displayedProjects = viewAll ? projects : projects.slice(0, 3)
+  // Use projectsArray instead of projects directly
+  const displayedProjects = viewAll ? projectsArray : projectsArray.slice(0, 1);
 
   // Scroll to the newly added project
   useEffect(() => {

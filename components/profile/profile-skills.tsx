@@ -28,12 +28,15 @@ interface ProfileSkillsProps {
 }
 
 export function ProfileSkills({ 
-  skills = [], 
+  skills, 
   onUpdate, 
   viewAll = false, 
   onViewAllClick,
   isEditable = false
 }: ProfileSkillsProps) {
+  // Ensure skills is always an array
+  const skillsArray = Array.isArray(skills) ? skills : [];
+  
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false)
   const [isEditSkillOpen, setIsEditSkillOpen] = useState(false)
   const [editingSkillIndex, setEditingSkillIndex] = useState(-1)
@@ -43,12 +46,13 @@ export function ProfileSkills({
     endorsements: 0,
   })
 
-  const displayedSkills = viewAll ? skills : skills.slice(0, 6)
+  // Always use skillsArray instead of skills directly
+  const displayedSkills = viewAll ? skillsArray : skillsArray.slice(0, 6)
 
   const handleAddSkill = () => {
     if (!newSkill.name) return
     
-    const updatedSkills = [...skills, { ...newSkill }]
+    const updatedSkills = [...skillsArray, { ...newSkill }]
     onUpdate?.(updatedSkills)
     setNewSkill({
       name: "",
@@ -65,7 +69,7 @@ export function ProfileSkills({
   const handleEditSkill = () => {
     if (editingSkillIndex === -1 || !newSkill.name) return
     
-    const updatedSkills = [...skills]
+    const updatedSkills = [...skillsArray]
     updatedSkills[editingSkillIndex] = { ...newSkill }
     onUpdate?.(updatedSkills)
     setIsEditSkillOpen(false)
@@ -77,17 +81,17 @@ export function ProfileSkills({
   }
 
   const handleDeleteSkill = (index: number) => {
-    const updatedSkills = [...skills]
+    const updatedSkills = [...skillsArray]
     updatedSkills.splice(index, 1)
     onUpdate?.(updatedSkills)
     toast({
       title: "Skill deleted",
-      description: `${skills[index].name} has been removed from your skills.`,
+      description: `${skillsArray[index].name} has been removed from your skills.`,
     })
   }
 
   const openEditSkillModal = (index: number) => {
-    setNewSkill({ ...skills[index] })
+    setNewSkill({ ...skillsArray[index] })
     setEditingSkillIndex(index)
     setIsEditSkillOpen(true)
   }
@@ -201,14 +205,14 @@ export function ProfileSkills({
             </div>
           )}
 
-          {!viewAll && skills.length > 6 && (
+          {!viewAll && skillsArray.length > 6 && (
             <div className="mt-6 flex justify-center">
               <Button
                 variant="outline"
                 className="border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 dark:border-violet-800/30 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/40"
                 onClick={onViewAllClick}
               >
-                View all {skills.length} skills
+                View all {skillsArray.length} skills
                 <Icons.arrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>

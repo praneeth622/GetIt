@@ -96,7 +96,7 @@ export default function StudentProfilePage() {
     university: "",
     about: "",
     skills: [],
-    projects: [],
+    projects: [], // Ensure this is initialized as an empty array
     experience: [],
     connections: { followers: 0, following: 0 },
     achievements: [],
@@ -679,14 +679,18 @@ export default function StudentProfilePage() {
 
                 <div className="grid gap-8 md:grid-cols-2">
                   <ProfileProjects
-                    projects={viewAllSections.projects ? userData.projects : userData.projects.slice(0, 1)}
+                    projects={viewAllSections.projects ? 
+                      (Array.isArray(userData.projects) ? userData.projects : []) : 
+                      (Array.isArray(userData.projects) ? userData.projects.slice(0, 1) : [])}
                     onUpdate={isEditable ? (projects) => handleUpdateUserData("projects", projects) : undefined}
                     viewAll={viewAllSections.projects}
                     onViewAllClick={() => toggleViewAll("projects")}
                     isEditable={isEditable}
                   />
                   <ProfileExperience
-                    experience={viewAllSections.experience ? userData.experience : userData.experience.slice(0, 1)}
+                    experience={viewAllSections.experience ? 
+                      (Array.isArray(userData.experience) ? userData.experience : []) : 
+                      (Array.isArray(userData.experience) ? userData.experience.slice(0, 1) : [])}
                     onUpdate={isEditable ? (experience) => handleUpdateUserData("experience", experience) : undefined}
                     viewAll={viewAllSections.experience}
                     onViewAllClick={() => toggleViewAll("experience")}
@@ -716,7 +720,7 @@ export default function StudentProfilePage() {
 
               <TabsContent value="projects" className="animate-in fade-in-50">
                 <ProfileProjects
-                  projects={userData.projects}
+                  projects={Array.isArray(userData.projects) ? userData.projects : []}
                   onUpdate={isEditable ? (projects) => handleUpdateUserData("projects", projects) : undefined}
                   viewAll={true}
                   isEditable={isEditable}
@@ -725,7 +729,7 @@ export default function StudentProfilePage() {
 
               <TabsContent value="experience" className="animate-in fade-in-50">
                 <ProfileExperience
-                  experience={userData.experience}
+                  experience={Array.isArray(userData.experience) ? userData.experience : []}
                   onUpdate={isEditable ? (experience) => handleUpdateUserData("experience", experience) : undefined}
                   viewAll={true}
                   isEditable={isEditable}
