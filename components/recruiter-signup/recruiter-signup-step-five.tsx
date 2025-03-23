@@ -28,6 +28,7 @@ export function RecruiterSignupStepFive({
   isLoading,
 }: RecruiterSignupStepFiveProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState("")
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -42,13 +43,32 @@ export function RecruiterSignupStepFive({
     updateFormData({ [name]: checked })
   }
 
+  const validateForm = () => {
+    if (!formData.termsAgreed) {
+      setError("You must agree to the Terms and Conditions to continue")
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!validateForm()) {
+      return
+    }
+    
+    setError("")
+    setIsSubmitting(true)
+    
     try {
       await updateFormData(formData)
+      nextStep() // Move to success screen if successful
     } catch (error) {
       console.error("Error during registration:", error)
+      setError(error instanceof Error ? error.message : "Registration failed")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -267,6 +287,12 @@ export function RecruiterSignupStepFive({
         </div>
       </div>
 
+      {error && (
+        <div className="p-3 text-sm rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400">
+          {error}
+        </div>
+      )}
+      
       <div className="flex gap-3">
         <Button
           type="button"
@@ -279,10 +305,10 @@ export function RecruiterSignupStepFive({
         </Button>
         <Button 
           type="submit" 
-          disabled={isLoading}
+          disabled={isLoading || isSubmitting}
           className="w-full"
         >
-          {isLoading ? (
+          {isLoading || isSubmitting ? (
             <>
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               Creating account...

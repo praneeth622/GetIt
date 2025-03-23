@@ -14,6 +14,8 @@ import { RecruiterSignupComplete } from "@/components/recruiter-signup/recruiter
 import { useTheme } from "next-themes"
 import { registerRecruiter } from "@/lib/firebase-service"
 import type { RecruiterDetails } from "@/lib/firebase-service"
+import { useRouter } from "next/navigation" // Add this import
+import { toast } from "sonner" // Add this import - using sonner not react-toastify
 
 export default function RecruiterSignupPage() {
   const [step, setStep] = useState(1)
@@ -74,8 +76,12 @@ export default function RecruiterSignupPage() {
       )
 
       if (success) {
-        toast.success("Registration successful!")
-        router.push("/explore/recruiters") // Redirect to recruiter dashboard
+        // Change step to 6 (success screen) instead of redirecting immediately
+        setStep(6)
+        // Delay redirect until they've seen the success screen
+        setTimeout(() => {
+          router.push("/explore/recruiters")
+        }, 3000) 
       }
     } catch (error: any) {
       toast.error(error.message)

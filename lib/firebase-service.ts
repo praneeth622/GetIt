@@ -147,12 +147,12 @@ export async function registerStudentUser(email: string, password: string, userD
     const { user } = userCredential
 
     // Store the user data directly in the users collection
-    const userDoc = doc(db, "users", user.uid)
+    const userDoc = doc(db, `users/student/${user.uid}/user_details` )
     await setDoc(userDoc, {
       ...userData,
-      Role: "student", // Ensure Role is set
-      savedJobs: [],   // Initialize savedJobs
-      appliedJobs: [], // Initialize appliedJobs
+      Role: "student", 
+      savedJobs: [],   
+      appliedJobs: [],
       createdAt: new Date(),
       updatedAt: new Date()
     })
@@ -172,19 +172,28 @@ export async function registerRecruiter(email: string, password: string, userDat
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
     const { user } = userCredential
 
-    const userDoc = doc(db, `users/Recruiter/${user.uid}/user_details`)
+    // Store the user data directly in the users collection - consistent with findOrCreateStudentDocument
+    const userDoc = doc(db, "users", user.uid)
     await setDoc(userDoc, {
       ...userData,
+      Role: "Recruiter", // Ensure consistent capitalization
       createdAt: new Date(),
       updatedAt: new Date()
     })
 
     return { success: true, userId: user.uid }
   } catch (error: any) {
+    console.error("Error during recruiter registration:", error);
     let message = "An error occurred during registration"
+    
     if (error.code === "auth/email-already-in-use") {
       message = "This email is already registered"
+    } else if (error.code === "auth/invalid-email") {
+      message = "Invalid email address"
+    } else if (error.code === "auth/weak-password") {
+      message = "Password is too weak"
     }
+    
     throw new Error(message)
   }
 }
@@ -526,11 +535,11 @@ export async function getAllJobs(lastVisible: string | null = null, limit: numbe
   }
 }
 
-// Update the findOrCreateStudentDocument function to use correct paths
+// Update the findOrCreateStudentDocument function to include the users path
 async function findOrCreateStudentDocument(studentId: string) {
   // Try all possible paths where student data might be, ensuring they have even segments
   const possiblePaths = [
-    // doc(db, "users", studentId), // Simple path in users collection
+    doc(db, "users", studentId), // Simple path in users collection - THIS SHOULD BE FIRST
     doc(db, "students", studentId), // In case there's a dedicated students collection
     doc(db, "users", "student", studentId, "user_details"), // Nested path with user_details subcollection
     doc(db, "student_profiles", studentId) // Alternative location
@@ -562,7 +571,7 @@ async function findOrCreateStudentDocument(studentId: string) {
   
   if (!existingDoc) {
     // Create a new document at users collection (simplest approach)
-    console.log(`No existing document found. Creating new student document at users/${studentId}`);
+    console.log(`No existing document found. Creating new student document at users/student/${studentId}`);
     const newDocPath = doc(db, "users", studentId);
     
     try {
@@ -882,7 +891,7 @@ export async function searchJobs(
     // Execute query
     const querySnapshot = await getDocs(jobQuery);
     
-    // Filter results client-side for complex filtering
+    // Filter results client-side for complex filtering (e.g., search, skills, payment)
     let filteredJobs = querySnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -970,6 +979,74 @@ export async function updateApplicationStatus(
   } catch (error) {
     console.error("Error updating application status:", error);
     throw new Error("Failed to update application status");
+  }
+}
+
+// Function to get user profile data
+export async function getUserProfile(userId: string) {
+  try {
+    const userDoc = await findOrCreateStudentDocument(userId);
+    
+    if (userDoc.isNew) {
+      // This is a new user, return default profile structure
+      return {
+        id: userId,
+        fullName: "",
+        email: "",
+        title: "",
+        university: "",
+        about: "",
+        skills: [],
+        projects: [],
+        experience: [],
+        connections: { followers: 0, following: 0 },
+        achievements: [],
+        socialLinks: {},
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    
+    // Return the existing user data with defaults for missing fields
+    return {
+      id: userId,
+      fullName: userDoc.data.fullName || "",
+      email: userDoc.data.email || "",
+      title: userDoc.data.title || "",
+      university: userDoc.data.university || "",
+      about: userDoc.data.about || "",
+      skills: userDoc.data.skills || [],
+      projects: userDoc.data.projects || [],
+      experience: userDoc.data.experience || [],
+      connections: userDoc.data.connections || { followers: 0, following: 0 },
+      achievements: userDoc.data.achievements || [],
+      socialLinks: userDoc.data.socialLinks || {},
+      avatar: userDoc.data.avatar || "/placeholder.svg?height=200&width=200",
+      coverImage: userDoc.data.coverImage || "/placeholder.svg?height=400&width=1200",
+      createdAt: userDoc.data.createdAt instanceof Date ? userDoc.data.createdAt : new Date(),
+      updatedAt: userDoc.data.updatedAt instanceof Date ? userDoc.data.updatedAt : new Date()
+    };
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw new Error("Failed to fetch user profile");
+  }
+}
+
+// Function to update specific sections of the user profile
+export async function updateUserProfile(userId: string, section: string, data: any) {
+  try {
+    const userDoc = await findOrCreateStudentDocument(userId);
+    
+    // Update only the specific section
+    await updateDoc(userDoc.ref, {
+      [section]: data,
+      updatedAt: new Date()
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error(`Error updating user profile section ${section}:`, error);
+    throw new Error("Failed to update profile");
   }
 }
 

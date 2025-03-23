@@ -4,8 +4,19 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
+import { useState, useEffect } from "react"
 
 export function RecruiterSignupComplete() {
+  const [redirectCounter, setRedirectCounter] = useState(3)
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRedirectCounter((prev) => Math.max(0, prev - 1))
+    }, 1000)
+    
+    return () => clearInterval(timer)
+  }, [])
+
   return (
     <motion.div
       className="flex flex-col items-center text-center space-y-8"
@@ -106,6 +117,15 @@ export function RecruiterSignupComplete() {
           </Link>
         </div>
       </motion.div>
+
+      <motion.p
+        className="text-sm text-amber-600 dark:text-amber-400 italic"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        Redirecting to dashboard {redirectCounter > 0 ? `in ${redirectCounter}...` : "now..."}
+      </motion.p>
     </motion.div>
   )
 }

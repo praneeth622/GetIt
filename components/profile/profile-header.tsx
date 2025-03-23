@@ -42,7 +42,7 @@ export function ProfileHeader({ userData, onUpdate }: ProfileHeaderProps) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Icons.image className="h-5 w-5" />
+          {/* <Icons.image className="h-5 w-5" /> */}
           <span className="sr-only">Change cover</span>
         </motion.button>
       </div>
@@ -66,7 +66,7 @@ export function ProfileHeader({ userData, onUpdate }: ProfileHeaderProps) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Icons.image className="h-4 w-4" />
+                {/* <Icons.image className="h-4 w-4" /> */}
                 <span className="sr-only">Change avatar</span>
               </motion.button>
             </div>
@@ -173,7 +173,7 @@ export function ProfileHeader({ userData, onUpdate }: ProfileHeaderProps) {
             rel="noopener noreferrer"
             className="flex items-center rounded-full bg-violet-100 px-4 py-2 text-sm text-violet-800 transition-all hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:hover:bg-violet-800/40"
           >
-            <Icons.image className="mr-2 h-4 w-4" />
+            {/* <Icons.image className="mr-2 h-4 w-4" /> */}
             Behance
           </a>
           <a
@@ -182,7 +182,7 @@ export function ProfileHeader({ userData, onUpdate }: ProfileHeaderProps) {
             rel="noopener noreferrer"
             className="flex items-center rounded-full bg-violet-100 px-4 py-2 text-sm text-violet-800 transition-all hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:hover:bg-violet-800/40"
           >
-            <Icons.image className="mr-2 h-4 w-4" />
+            {/* <Icons.image className="mr-2 h-4 w-4" /> */}
             Dribbble
           </a>
 
