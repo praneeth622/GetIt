@@ -19,12 +19,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
+import { UserButton } from "./user-button"
 
 interface PremiumNavbarProps {
   recruiterId?: string
+  userId?: string
 }
-export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
+
+export function PremiumNavbar({recruiterId, userId}: PremiumNavbarProps) {
   const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -131,7 +133,7 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/agreement" className="flex cursor-pointer items-center">
+              <Link href="agreements/recruiters/qvdjshac/eqgcdhsvj" className="flex cursor-pointer items-center">
                 <Icons.fileText className="mr-2 h-4 w-4" />
                 <span>Agreement</span>
               </Link>
@@ -140,6 +142,12 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
               <Link href="/ai" className="flex cursor-pointer items-center">
                 <Icons.sparkles className="mr-2 h-4 w-4" />
                 <span>AI Assistant</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/feed" className="flex cursor-pointer items-center">
+                <Icons.sparkles className="mr-2 h-4 w-4" />
+                <span>Feed</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -165,6 +173,10 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
         </Link>
       </>
     )
+  }
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
   return (
@@ -315,7 +327,7 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/agreement" className="flex cursor-pointer items-center">
+                  <Link href="/agreements/recruiters/qvdjshac/eqgcdhsvj" className="flex cursor-pointer items-center">
                     <Icons.settings className="mr-2 h-4 w-4" />
                     <span>Agreement</span>
                   </Link>
@@ -324,6 +336,12 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
                   <Link href="/ai" className="flex cursor-pointer items-center">
                     <Icons.settings className="mr-2 h-4 w-4" />
                     <span>AI Assistant</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/feed" className="flex cursor-pointer items-center">
+                    <Icons.settings className="mr-2 h-4 w-4" />
+                    <span>Feed</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -340,7 +358,7 @@ export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
               variant="ghost"
               size="icon"
               className="text-violet-800 dark:text-violet-300"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
             >
               {isMobileMenuOpen ? (
                 <Icons.close className="h-6 w-6" />

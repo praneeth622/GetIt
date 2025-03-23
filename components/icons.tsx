@@ -181,11 +181,44 @@ export const Icons = {
   check: Check,
   x: X,
   home: Home,
-  search: Search,
+  search: (props: any) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  ),
   messageSquare: MessageSquare,
   logout: LogOut,
   menu: Menu,
-  upload: Upload,
+  upload: (props: any) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" x2="12" y1="3" y2="15" />
+    </svg>
+  ),
   send: Send,
   github: Github,
   lightbulb: Lightbulb,
@@ -326,19 +359,12 @@ export const Icons = {
   eraser: Eraser,
   sparkles: Zap,
   scissors: Scissors,
-  paperclip: Paperclip,
-  userCheck: CheckCircle,
   share2: Share2,
   printer: Printer,
   message: MessageSquare,
   thumbsUp: ThumbsUp,
   layout: Layout,
   image: Image,
-  camera: Camera,
   school: GraduationCap,
-  alertTriangle: AlertTriangle,
-  video: Video,
-  music: Music, 
-  thumbsUp: ThumbsUp,
 }
 

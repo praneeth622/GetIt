@@ -19,6 +19,7 @@ import {
   addDoc 
 } from "firebase/firestore"
 import { ref, getDatabase, Database, get } from "firebase/database"
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage"
 
 export interface UserDetails {
   fullName: string
@@ -1380,6 +1381,118 @@ export async function updateRecruiterProfile(recruiterId: string, section: strin
   } catch (error) {
     console.error(`Error updating recruiter profile section ${section}:`, error);
     throw new Error(`Failed to update ${section || "profile"}`);
+  }
+}
+
+// Function to analyze interview video with Gemini
+export async function analyzeInterviewVideo(videoFile: File, userId: string) {
+  try {
+    if (!videoFile || !userId) {
+      throw new Error("Video file or user ID is missing");
+    }
+
+    console.log(`Starting interview analysis for user ${userId}`);
+    
+    // Create a unique filename
+    const timestamp = Date.now();
+    const filename = `${userId}_${timestamp}${videoFile.name.substring(videoFile.name.lastIndexOf('.'))}`;
+    const videoPath = `videos/${filename}`;
+    
+    console.log(`Uploading video to ${videoPath}`);
+    
+    // Upload to Firebase Storage
+    const storage = getStorage();
+    const videoStorageRef = storageRef(storage, videoPath);
+    await uploadBytes(videoStorageRef, videoFile);
+    const downloadUrl = await getDownloadURL(videoStorageRef);
+    
+    console.log(`Video uploaded successfully to ${downloadUrl}`);
+    
+    // Get auth token for API call
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) {
+      throw new Error("User not authenticated");
+    }
+    
+    // Call our API endpoint to analyze the video with Gemini
+    console.log("Calling Gemini API via endpoint...");
+    
+    // Create form data with video file
+    const formData = new FormData();
+    formData.append('video', videoFile);
+    
+    // Make API request
+    const response = await fetch('/api/interview-analysis', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("API error:", errorData);
+      throw new Error(`API error: ${errorData.error || response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || "Failed to analyze video");
+    }
+    
+    // Store the analysis result in Firestore
+    const analysisRef = doc(db, "users", userId, "interview_analyses", timestamp.toString());
+    
+    const analysisData = {
+      videoUrl: downloadUrl,
+      timestamp: timestamp,
+      date: new Date(),
+      analyzed: true,
+      analysis: result.analysis
+    };
+    
+    await setDoc(analysisRef, analysisData);
+    
+    return {
+      success: true,
+      analysisId: timestamp.toString(),
+      analysis: result.analysis,
+      videoUrl: downloadUrl
+    };
+  } catch (error) {
+    console.error("Error analyzing interview video:", error);
+    throw new Error("Failed to analyze interview video");
+  }
+}
+
+// Function to get a user's interview analyses
+export async function getUserInterviewAnalyses(userId: string) {
+  try {
+    if (!userId) {
+      throw new Error("User ID is missing");
+    }
+    
+    console.log(`Fetching interview analyses for user ${userId}`);
+    
+    const analysesRef = collection(db, "users", userId, "interview_analyses");
+    const analysesQuery = query(analysesRef, orderBy("timestamp", "desc"));
+    const querySnapshot = await getDocs(analysesQuery);
+    
+    const analyses = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date?.toDate() || new Date()
+      };
+    });
+    
+    return analyses;
+  } catch (error) {
+    console.error("Error fetching interview analyses:", error);
+    throw new Error("Failed to fetch interview analyses");
   }
 }
 
