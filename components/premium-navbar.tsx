@@ -1,6 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { auth } from "@/firebase"
+import { getAuth, signOut, onAuthStateChanged, User } from "firebase/auth"
+import { toast } from "sonner"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -15,24 +19,45 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { getAuth, onAuthStateChanged, User } from "firebase/auth"
 
-export function PremiumNavbar() {
+
+interface PremiumNavbarProps {
+  recruiterId?: string
+}
+export function PremiumNavbar({recruiterId}: PremiumNavbarProps) {
+  const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
   const { resolvedTheme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user)
+    })
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
     }
 
     window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      unsubscribe()
+    }
   }, [])
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      toast.success("Logged out successfully")
+      router.push("/login")
+    } catch (error) {
+      toast.error("Failed to log out")
+    }
+  }
 
   const navVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -64,6 +89,69 @@ export function PremiumNavbar() {
       transition: { type: "spring", stiffness: 400, damping: 10 },
     },
     tap: { scale: 0.95 },
+  }
+
+  const AuthButtons = () => {
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="relative h-9 w-9 rounded-full border-violet-200 bg-white/80 p-0 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:text-violet-900 dark:border-violet-800/30 dark:bg-zinc-900/80 dark:text-violet-300 dark:hover:bg-zinc-800/80 dark:hover:text-violet-200"
+            >
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={user.photoURL || "/placeholder.svg?height=36&width=36"} alt={user.displayName || "Profile"} />
+                <AvatarFallback className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">
+                  {user.displayName?.charAt(0) || user.email?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/profile" className="flex cursor-pointer items-center">
+                <Icons.user className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard" className="flex cursor-pointer items-center">
+                <Icons.layout className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="flex cursor-pointer items-center">
+                <Icons.settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="flex cursor-pointer items-center text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+            >
+              <Icons.logOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
+
+    return (
+      <>
+        <Link href="/login">
+          <Button variant="outline">Log In</Button>
+        </Link>
+        <Link href="/signup">
+          <Button>Sign Up</Button>
+        </Link>
+      </>
+    )
   }
 
   return (
@@ -150,72 +238,7 @@ export function PremiumNavbar() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-9 w-9 rounded-full border-violet-200 bg-white/80 p-0 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:text-violet-900 dark:border-violet-800/30 dark:bg-zinc-900/80 dark:text-violet-300 dark:hover:bg-zinc-800/80 dark:hover:text-violet-200"
-                >
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src="/placeholder.svg?height=36&width=36" alt="Profile" />
-                    <AvatarFallback className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">
-                      AJ
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profiles" className="flex cursor-pointer items-center">
-                    <Icons.user className="mr-2 h-4 w-4" />
-                    <span>My Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard" className="flex cursor-pointer items-center">
-                    <Icons.layout className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="flex cursor-pointer items-center">
-                    <Icons.settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex cursor-pointer items-center text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
-                  <Icons.logOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Link href="/login">
-              <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                <Button
-                  variant="outline"
-                  className="border-violet-200 bg-white/80 text-violet-800 shadow-md backdrop-blur-sm hover:bg-white hover:text-violet-900 dark:border-violet-800/30 dark:bg-zinc-900/80 dark:text-violet-300 dark:hover:bg-zinc-800/80 dark:hover:text-violet-200"
-                >
-                  Log In
-                </Button>
-              </motion.div>
-            </Link>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Link href="/signup">
-              <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                <Button className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-amber-600 text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-600/30 dark:shadow-violet-600/10 hover:from-violet-700 hover:to-amber-700">
-                  <span className="relative z-10">Sign Up</span>
-                  <span className="absolute inset-0 -z-0 bg-gradient-to-r from-violet-600 to-amber-600 opacity-0 blur-xl transition-opacity duration-300 hover:opacity-70"></span>
-                </Button>
-              </motion.div>
-            </Link>
+            <AuthButtons />
           </motion.div>
         </div>
 

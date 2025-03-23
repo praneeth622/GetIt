@@ -43,7 +43,7 @@ export default function LoginPage() {
       const result = await signInWithEmailAndPassword(auth, formData.email, formData.password)
       if (result.user) {
         toast.success("Successfully logged in!")
-        router.push("/dashboa")
+        router.push("/explore/")
       }
     } catch (error: any) {
       let message = "Failed to login"
@@ -283,7 +283,7 @@ export default function LoginPage() {
                   <div className="flex-grow border-t border-zinc-200 dark:border-zinc-800"></div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                {/* <div className="grid grid-cols-3 gap-3">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -329,7 +329,7 @@ export default function LoginPage() {
                       <span className="sr-only md:not-sr-only md:inline-block">Facebook</span>
                     </Button>
                   </motion.div>
-                </div>
+                </div> */}
 
                 <div className="mt-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
                   Don&apos;t have an account?{" "}

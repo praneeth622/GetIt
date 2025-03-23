@@ -153,7 +153,7 @@ export default function SignupOptionsPage() {
               transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 15 }}
               className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-violet-600/10 to-amber-600/10 dark:from-violet-600/20 dark:to-amber-600/20"
             >
-              <Icons.userPlus className="h-8 w-8 text-violet-600 dark:text-violet-400" />
+              {/* <Icons.userPlus className="h-8 w-8 text-violet-600 dark:text-violet-400" /> */}
             </motion.div>
             <motion.h1
               className="mb-2 bg-gradient-to-r from-zinc-900 to-zinc-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent dark:from-white dark:to-zinc-400"

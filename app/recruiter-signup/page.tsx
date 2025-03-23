@@ -12,6 +12,8 @@ import { RecruiterSignupStepFour } from "@/components/recruiter-signup/recruiter
 import { RecruiterSignupStepFive } from "@/components/recruiter-signup/recruiter-signup-step-five"
 import { RecruiterSignupComplete } from "@/components/recruiter-signup/recruiter-signup-complete"
 import { useTheme } from "next-themes"
+import { registerRecruiter } from "@/lib/firebase-service"
+import type { RecruiterDetails } from "@/lib/firebase-service"
 
 export default function RecruiterSignupPage() {
   const [step, setStep] = useState(1)
@@ -59,8 +61,37 @@ export default function RecruiterSignupPage() {
 
   const totalSteps = 5
 
+  const handleRegistration = async (formData: any) => {
+    setIsLoading(true)
+    try {
+      // Remove confirmPassword from data being sent to Firebase
+      const { confirmPassword, ...userData } = formData
+      
+      const { success, userId } = await registerRecruiter(
+        formData.email,
+        formData.password,
+        userData as RecruiterDetails
+      )
+
+      if (success) {
+        toast.success("Registration successful!")
+        router.push("/explore/recruiters") // Redirect to recruiter dashboard
+      }
+    } catch (error: any) {
+      toast.error(error.message)
+      setStep(1) // Return to first step on error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Update the updateFormData function to handle final submission
   const updateFormData = (data: any) => {
-    setFormData({ ...formData, ...data })
+    if (step === 5 && !isLoading) {
+      handleRegistration({ ...formData, ...data })
+    } else {
+      setFormData({ ...formData, ...data })
+    }
   }
 
   // Only run this effect on the client side

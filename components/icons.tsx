@@ -13,6 +13,7 @@ import {
   Laptop,
   Loader2,
   Moon,
+  Github,
   MoreVertical,
   Pizza,
   Plus,
@@ -148,6 +149,7 @@ import {
   Activity,
   Pill,
   Dna,
+  ThumbsUp,
   type LucideIcon,
 } from "lucide-react"
 
@@ -155,6 +157,7 @@ export type Icon = LucideIcon
 
 export const Icons = {
   logo: Command,
+  logOut : LogOut,
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,
@@ -184,6 +187,7 @@ export const Icons = {
   menu: Menu,
   upload: Upload,
   send: Send,
+  github: Github,
   lightbulb: Lightbulb,
   bookOpen: BookOpen,
   twitter: Twitter,
@@ -191,6 +195,7 @@ export const Icons = {
   linkedin: Linkedin,
   facebook: Facebook,
   star: Star,
+  compass: ArrowRight,
   calendar: Calendar,
   clock: Clock,
   mapPin: MapPin,
@@ -306,6 +311,7 @@ export const Icons = {
   bed: Bed,
   sofa: Sofa,
   sunrise: Sunrise,
+  dollar: DollarSign,
   sunset: Sunset,
   umbrella: Umbrella,
   gamepad: Gamepad,
@@ -318,6 +324,9 @@ export const Icons = {
   scissors: Scissors,
   paperclip: Paperclip,
   printer: Printer,
+  message: MessageSquare,
+  thumbsUp: ThumbsUp,
   layout: Layout,
+  thumbsUp: ThumbsUp,
 }
 

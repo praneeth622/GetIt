@@ -44,13 +44,12 @@ export function RecruiterSignupStepFive({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false)
-      nextStep()
-    }, 2000)
+    
+    try {
+      await updateFormData(formData)
+    } catch (error) {
+      console.error("Error during registration:", error)
+    }
   }
 
   // Map role IDs to labels
@@ -278,18 +277,18 @@ export function RecruiterSignupStepFive({
         >
           Back
         </Button>
-        <Button
-          type="submit"
-          disabled={isLoading || isSubmitting || !formData.termsAgreed}
-          className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+        <Button 
+          type="submit" 
+          disabled={isLoading}
+          className="w-full"
         >
-          {isSubmitting ? (
+          {isLoading ? (
             <>
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              Creating Account...
+              Creating account...
             </>
           ) : (
-            "Complete Registration"
+            "Create Account"
           )}
         </Button>
       </div>
