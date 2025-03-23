@@ -29,7 +29,7 @@ export interface UserDetails {
   year: string
   coursework?: string
   certifications?: string
-  skills: string[]
+  skills: { name: string, proficiency: string }[]
   interests: string[]
   portfolioLinks?: {
     github?: string
@@ -49,7 +49,6 @@ export interface UserDetails {
 
 // Add this interface for student data
 export interface StudentData extends UserDetails {
-  id: string
   matchScore?: number
 }
 
@@ -68,7 +67,7 @@ export interface RecruiterDetails {
   companyDescription: string
   companyLocation: string
   hiringRoles: string[]
-  skillsNeeded: string[]
+  skillsNeeded: { name: string, proficiency: string }[]
   hiringTimeline: string
   employmentTypes: string[]
   remoteOptions: string[]
@@ -173,7 +172,7 @@ export async function registerRecruiter(email: string, password: string, userDat
     const { user } = userCredential
 
     // Store the user data directly in the users collection - consistent with findOrCreateStudentDocument
-    const userDoc = doc(db, "users", user.uid)
+    const userDoc = doc(db, `users/recruiter/${user.uid}/user_details`)
     await setDoc(userDoc, {
       ...userData,
       Role: "Recruiter", // Ensure consistent capitalization
@@ -451,7 +450,6 @@ export async function getStudentsByIds(studentIds: string[]) {
           console.log("Student data:", data);
           
           students.push({
-            id: studentId,
             ...data,
             fullName: data.fullName || "Unnamed Student",
             email: data.email || "",
@@ -990,7 +988,6 @@ export async function getUserProfile(userId: string) {
     if (userDoc.isNew) {
       // This is a new user, return default profile structure
       return {
-        id: userId,
         fullName: "",
         email: "",
         title: "",
@@ -1009,7 +1006,6 @@ export async function getUserProfile(userId: string) {
     
     // Return the existing user data with defaults for missing fields
     return {
-      id: userId,
       fullName: userDoc.data.fullName || "",
       email: userDoc.data.email || "",
       title: userDoc.data.title || "",
