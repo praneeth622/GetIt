@@ -1046,3 +1046,103 @@ export async function updateUserProfile(userId: string, section: string, data: a
   }
 }
 
+// Add this export function to get user details based on user ID
+export async function getUserDetails(userId: string | undefined) {
+  try {
+    // Handle undefined userId case
+    if (!userId) {
+      throw new Error("User ID is undefined");
+    }
+    
+    console.log(`Fetching user details for ID: ${userId}`);
+    
+    // First try to get the user from the users collection directly (simplest path)
+    const directUserPath = doc(db, "users", userId);
+    const directUserSnap = await getDoc(directUserPath);
+    
+    if (directUserSnap.exists()) {
+      console.log(`Found user document at users/${userId}`);
+      const data = directUserSnap.data();
+      return {
+        ...data,
+        id: userId,
+        Role: data.Role || "Student" // Ensure Role is set
+      };
+    }
+    
+    // If direct path doesn't work, try alternative paths
+    // Check student paths
+    const studentPaths = [
+      doc(db, "users", "student", userId, "user_details"),
+      doc(db, "students", userId)
+    ];
+    
+    for (const path of studentPaths) {
+      try {
+        const docSnap = await getDoc(path);
+        if (docSnap.exists()) {
+          console.log(`Found student document at ${path.path}`);
+          const data = docSnap.data();
+          return {
+            ...data,
+            id: userId,
+            Role: data.Role || "Student" // Ensure Role is set
+          };
+        }
+      } catch (error) {
+        console.warn(`Error checking path ${path.path}:`, error);
+      }
+    }
+    
+    // Check recruiter paths
+    const recruiterPaths = [
+      doc(db, "users", "recruiter", userId, "user_details"),
+      doc(db, "recruiters", userId)
+    ];
+    
+    for (const path of recruiterPaths) {
+      try {
+        const docSnap = await getDoc(path);
+        if (docSnap.exists()) {
+          console.log(`Found recruiter document at ${path.path}`);
+          const data = docSnap.data();
+          return {
+            ...data,
+            id: userId,
+            Role: data.Role || "Recruiter" // Ensure Role is set
+          };
+        }
+      } catch (error) {
+        console.warn(`Error checking path ${path.path}:`, error);
+      }
+    }
+    
+    // If we still don't have a document, create a bare minimum one based on auth user data
+    const auth = getAuth();
+    const user = auth.currentUser;
+    
+    if (user) {
+      // Default to student Role if we can't determine
+      const defaultUserData = {
+        id: userId,
+        email: user.email || "",
+        fullName: user.displayName || "",
+        Role: "Student", // Default role
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      // Store this basic profile
+      await setDoc(doc(db, "users", userId), defaultUserData, { merge: true });
+      console.log(`Created default user document for ${userId}`);
+      
+      return defaultUserData;
+    }
+    
+    throw new Error("User document not found and could not create default");
+  } catch (error) {
+    console.error("Error in getUserDetails:", error);
+    throw error;
+  }
+}
+
